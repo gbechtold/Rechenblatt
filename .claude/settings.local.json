@@ -10,7 +10,17 @@
       "Bash(git commit:*)",
       "Bash(git remote add:*)",
       "Bash(git branch:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(git push:*)",
+      "Bash(fly launch:*)",
+      "Bash(fly auth:*)",
+      "Bash(fly deploy:*)",
+      "Bash(fly apps:*)",
+      "Bash(fly orgs:*)",
+      "Bash(fly status:*)",
+      "Bash(open https://rechenblatt.fly.dev)",
+      "Bash(fly logs:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }
