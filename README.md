@@ -1,6 +1,62 @@
 # Rechenblatt
 
 Ein Programm zur Erstellung von Rechenblättern für die Grund- und Hauptschule.
+A program for creating math worksheets for elementary and middle school students.
+
+🌐 **Live Demo**: [https://rechenblatt.fly.dev](https://rechenblatt.fly.dev)
+
+## Features
+
+- 🎨 **5 Beautiful Themes**: Space Adventure, Dino Discovery, Medieval Quest, Ocean Explorer, Circus Spectacular
+- 🖨️ **Print-Ready Worksheets**: Optimized layouts for printing
+- 🎮 **Interactive Play Mode**: Practice with instant feedback and animations
+- 🌍 **Multilingual**: Available in English and German
+- 👨‍🏫 **Teacher & Student Modes**: Different features for educators and learners
+- 📱 **Responsive Design**: Works on desktop, tablet, and mobile devices
+
+## Getting Started
+
+### Local Development
+
+```bash
+# Clone the repository
+git clone https://github.com/gbechtold/Rechenblatt.git
+cd Rechenblatt
+
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Open http://localhost:3000
+```
+
+### Deployment
+
+The app is configured for deployment on Fly.io:
+
+```bash
+# Install Fly CLI
+curl -L https://fly.io/install.sh | sh
+
+# Login to Fly
+fly auth login
+
+# Launch the app (first time)
+fly launch
+
+# Deploy updates
+fly deploy
+```
+
+## Technology Stack
+
+- **Frontend**: Next.js, React, TypeScript
+- **Styling**: Tailwind CSS, Framer Motion
+- **Internationalization**: next-i18next
+- **State Management**: Zustand
+- **Deployment**: Fly.io with Docker
 
 ## User Requirements Feature List
 
