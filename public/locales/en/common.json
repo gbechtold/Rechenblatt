@@ -1,0 +1,77 @@
+{
+  "app": {
+    "title": "Rechenblatt - Math Worksheets",
+    "description": "Create fun and engaging math worksheets"
+  },
+  "nav": {
+    "home": "Home",
+    "create": "Create",
+    "themes": "Themes",
+    "settings": "Settings",
+    "print": "Print",
+    "play": "Play"
+  },
+  "mode": {
+    "teacher": "Teacher Mode",
+    "student": "Student Mode",
+    "switch": "Switch Mode"
+  },
+  "themes": {
+    "space": "Space Adventure",
+    "dino": "Dino Discovery",
+    "castle": "Medieval Quest",
+    "ocean": "Ocean Explorer",
+    "circus": "Circus Spectacular"
+  },
+  "operations": {
+    "addition": "Addition",
+    "subtraction": "Subtraction",
+    "multiplication": "Multiplication",
+    "division": "Division"
+  },
+  "difficulty": {
+    "easy": "Easy (1-10)",
+    "medium": "Medium (1-20)",
+    "hard": "Hard (1-100)",
+    "expert": "Expert (1-1000)"
+  },
+  "settings": {
+    "problemsPerPage": "Problems per page",
+    "columns": "Columns",
+    "showNumbers": "Show numbers",
+    "showSolutions": "Show solutions",
+    "carryOver": "With carry-over",
+    "placeholders": "Placeholder problems",
+    "mixedOperations": "Mixed operations"
+  },
+  "actions": {
+    "generate": "Generate Worksheet",
+    "newProblems": "New Problems",
+    "print": "Print",
+    "save": "Save",
+    "load": "Load",
+    "share": "Share",
+    "play": "Play Interactive"
+  },
+  "game": {
+    "score": "Score",
+    "level": "Level",
+    "correct": "Correct!",
+    "tryAgain": "Try Again",
+    "nextProblem": "Next Problem",
+    "complete": "Worksheet Complete!",
+    "stars": "Stars",
+    "points": "Points"
+  },
+  "teacher": {
+    "classManagement": "Class Management",
+    "studentProgress": "Student Progress",
+    "assignments": "Assignments",
+    "reports": "Reports"
+  },
+  "student": {
+    "myWorksheets": "My Worksheets",
+    "achievements": "Achievements",
+    "progress": "My Progress"
+  }
+}

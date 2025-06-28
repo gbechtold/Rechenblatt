@@ -1,0 +1,77 @@
+{
+  "app": {
+    "title": "Rechenblatt - Mathematik Arbeitsblätter",
+    "description": "Erstelle unterhaltsame und ansprechende Mathe-Arbeitsblätter"
+  },
+  "nav": {
+    "home": "Startseite",
+    "create": "Erstellen",
+    "themes": "Themen",
+    "settings": "Einstellungen",
+    "print": "Drucken",
+    "play": "Spielen"
+  },
+  "mode": {
+    "teacher": "Lehrermodus",
+    "student": "Schülermodus",
+    "switch": "Modus wechseln"
+  },
+  "themes": {
+    "space": "Weltraumabenteuer",
+    "dino": "Dino-Entdeckung",
+    "castle": "Mittelalter-Quest",
+    "ocean": "Ozean-Erforscher",
+    "circus": "Zirkus-Spektakel"
+  },
+  "operations": {
+    "addition": "Addition",
+    "subtraction": "Subtraktion",
+    "multiplication": "Multiplikation",
+    "division": "Division"
+  },
+  "difficulty": {
+    "easy": "Einfach (1-10)",
+    "medium": "Mittel (1-20)",
+    "hard": "Schwer (1-100)",
+    "expert": "Experte (1-1000)"
+  },
+  "settings": {
+    "problemsPerPage": "Aufgaben pro Seite",
+    "columns": "Spalten",
+    "showNumbers": "Nummerierung anzeigen",
+    "showSolutions": "Lösungen anzeigen",
+    "carryOver": "Mit Zehnerübergang",
+    "placeholders": "Platzhalteraufgaben",
+    "mixedOperations": "Gemischte Rechenarten"
+  },
+  "actions": {
+    "generate": "Arbeitsblatt erstellen",
+    "newProblems": "Neue Aufgaben",
+    "print": "Drucken",
+    "save": "Speichern",
+    "load": "Laden",
+    "share": "Teilen",
+    "play": "Interaktiv spielen"
+  },
+  "game": {
+    "score": "Punkte",
+    "level": "Level",
+    "correct": "Richtig!",
+    "tryAgain": "Nochmal versuchen",
+    "nextProblem": "Nächste Aufgabe",
+    "complete": "Arbeitsblatt komplett!",
+    "stars": "Sterne",
+    "points": "Punkte"
+  },
+  "teacher": {
+    "classManagement": "Klassenverwaltung",
+    "studentProgress": "Schülerfortschritt",
+    "assignments": "Aufgaben",
+    "reports": "Berichte"
+  },
+  "student": {
+    "myWorksheets": "Meine Arbeitsblätter",
+    "achievements": "Erfolge",
+    "progress": "Mein Fortschritt"
+  }
+}

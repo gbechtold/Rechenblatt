@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --foreground-rgb: 0, 0, 0;
+    --background-start-rgb: 214, 219, 220;
+    --background-end-rgb: 255, 255, 255;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --foreground-rgb: 255, 255, 255;
+      --background-start-rgb: 0, 0, 0;
+      --background-end-rgb: 0, 0, 0;
+    }
+  }
+}
+
+@layer components {
+  .math-box {
+    @apply border-2 border-gray-400 w-12 h-12 flex items-center justify-center text-2xl font-bold;
+  }
+
+  .theme-space {
+    @apply bg-gradient-to-b from-space-dark to-space-blue text-white;
+  }
+
+  .theme-dino {
+    @apply bg-gradient-to-b from-green-100 to-dino-green text-gray-800;
+  }
+
+  .theme-castle {
+    @apply bg-gradient-to-b from-yellow-100 to-castle-gold text-gray-800;
+  }
+
+  .theme-ocean {
+    @apply bg-gradient-to-b from-blue-100 to-ocean-blue text-white;
+  }
+
+  .theme-circus {
+    @apply bg-gradient-to-b from-red-100 to-circus-red text-white;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 20mm;
+  }
+
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .math-problem {
+    page-break-inside: avoid;
+  }
+
+  .worksheet-page {
+    page-break-after: always;
+  }
+
+  .worksheet-page:last-child {
+    page-break-after: avoid;
+  }
+}
