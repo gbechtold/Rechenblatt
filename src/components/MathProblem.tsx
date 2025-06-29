@@ -93,24 +93,24 @@ export const MathProblem: React.FC<MathProblemProps> = ({
 
   return (
     <motion.div
-      className="math-problem p-4 flex items-center justify-center"
+      className="math-problem p-2 print:p-1 flex items-center justify-center"
       variants={problemVariants}
       initial="hidden"
       animate="visible"
     >
-      <div className="flex flex-col items-center space-y-2">
+      <div className="flex flex-col items-center space-y-1">
         {index > 0 && (
-          <span className="text-sm font-semibold text-gray-600">
+          <span className="text-sm font-semibold text-gray-600 print:text-xs">
             {index}.
           </span>
         )}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 print:space-x-1">
           {renderOperand(problem.operand1, problem.placeholder === 'operand1')}
-          <span className="text-2xl font-bold">
+          <span className="text-2xl font-bold print:text-xl">
             {getOperationSymbol(problem.operation)}
           </span>
           {renderOperand(problem.operand2, problem.placeholder === 'operand2')}
-          <span className="text-2xl font-bold">=</span>
+          <span className="text-2xl font-bold print:text-xl">=</span>
           {renderOperand(problem.answer, problem.placeholder === 'answer' || !problem.placeholder)}
         </div>
         {isInteractive && !showFeedback && userAnswer && (

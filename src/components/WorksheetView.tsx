@@ -80,30 +80,30 @@ export const WorksheetView = forwardRef<HTMLDivElement, WorksheetViewProps>(
       <div ref={ref} className="worksheet-page bg-white p-8 relative overflow-hidden">
         {getThemeDecorations(settings.theme)}
         
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">{title}</h1>
-          <div className="flex justify-between items-center max-w-md mx-auto">
-            <div className="flex items-center space-x-2">
-              <span className="text-gray-600">Name:</span>
-              <div className="border-b-2 border-gray-400 w-48"></div>
+        <div className="text-center mb-6 print:mb-4">
+          <h1 className="text-3xl font-bold mb-4">{title}</h1>
+          <div className="flex justify-between items-start max-w-2xl mx-auto">
+            <div className="flex flex-col">
+              <span className="text-gray-600 text-left mb-1">Name:</span>
+              <div className="border-b-2 border-gray-400 w-64 h-8"></div>
             </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-gray-600">Date:</span>
-              <div className="border-b-2 border-gray-400 w-32"></div>
+            <div className="flex flex-col">
+              <span className="text-gray-600 text-left mb-1">Date:</span>
+              <div className="border-b-2 border-gray-400 w-32 h-8"></div>
             </div>
           </div>
         </div>
 
         {/* Render problems grouped by operation if multiple operations are selected */}
         {problemsByOperation ? (
-          <div className="space-y-6 print:space-y-4">
+          <div className="space-y-4 print:space-y-3">
             {settings.operations!.map((operation) => {
               const operationProblems = problemsByOperation[operation] || [];
               if (operationProblems.length === 0) return null;
               
               const columns = settings.columnsPerOperation?.[operation] || settings.columns;
               return (
-                <div key={operation} className={cn('grid gap-6 print:gap-4', getColumnsClass(columns))}>
+                <div key={operation} className={cn('grid gap-4 print:gap-2', getColumnsClass(columns))}>
                   {operationProblems.map((problem, index) => (
                     <MathProblem
                       key={problem.id}
@@ -122,7 +122,7 @@ export const WorksheetView = forwardRef<HTMLDivElement, WorksheetViewProps>(
             })}
           </div>
         ) : (
-          <div className={cn('grid gap-6 print:gap-4', getColumnsClass(settings.columns))}>
+          <div className={cn('grid gap-4 print:gap-2', getColumnsClass(settings.columns))}>
             {problems.map((problem, index) => (
               <MathProblem
                 key={problem.id}

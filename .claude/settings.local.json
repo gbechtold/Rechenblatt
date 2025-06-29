@@ -32,7 +32,9 @@
       "Bash(npm run:*)",
       "Bash(npx tsc:*)",
       "Bash(pkill:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(flyctl status:*)",
+      "Bash(flyctl deploy:*)"
     ],
     "deny": []
   }
