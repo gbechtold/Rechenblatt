@@ -5,8 +5,13 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useReactToPrint } from 'react-to-print';
 import { useStore } from '@/lib/store';
 import { generateWorksheetProblems } from '@/lib/problemGenerator';
+import { exportToPDF } from '@/lib/pdfExport';
 import { WorksheetView } from '@/components/WorksheetView';
 import { ThemeSelector } from '@/components/ThemeSelector';
+import { OperationSelector } from '@/components/OperationSelector';
+import { LayoutConfigurator } from '@/components/LayoutConfigurator';
+import { OperationSubtypeSelector } from '@/components/OperationSubtypeSelector';
+import { ProblemFilters } from '@/components/ProblemFilters';
 import { Operation, Difficulty, Worksheet } from '@/types';
 import { motion } from 'framer-motion';
 
@@ -20,12 +25,44 @@ export default function Create() {
     content: () => printRef.current,
   });
 
+  const handleExportPDF = async () => {
+    if (!printRef.current || !currentWorksheet) return;
+    
+    const result = await exportToPDF(printRef.current, {
+      pageFormat: worksheetSettings.pageFormat || 'A4',
+      filename: `${currentWorksheet.title.replace(/[^a-z0-9äöüßÄÖÜ\s]/gi, '_').replace(/\s+/g, '_').replace(/_+/g, '_')}.pdf`
+    });
+    
+    if (!result.success) {
+      console.error('Failed to export PDF:', result.error);
+    }
+  };
+
   const generateWorksheet = () => {
-    const problems = generateWorksheetProblems(worksheetSettings);
+    // Update the settings with the current state
+    const updatedSettings = {
+      ...worksheetSettings,
+      mixedOperations: (worksheetSettings.operations && worksheetSettings.operations.length > 1) || false,
+    };
+    
+    const problems = generateWorksheetProblems(updatedSettings);
+    
+    // Generate title based on selected operations
+    let title = t(`themes.${updatedSettings.theme}`);
+    if (updatedSettings.operations && updatedSettings.operations.length > 0) {
+      if (updatedSettings.operations.length === 1) {
+        title += ` - ${t(`operations.${updatedSettings.operations[0]}`)}`;
+      } else {
+        title += ` - ${t('settings.mixedOperations')}`;
+      }
+    } else {
+      title += ` - ${t(`operations.${updatedSettings.operation}`)}`;
+    }
+    
     const worksheet: Worksheet = {
       id: Math.random().toString(36).substr(2, 9),
-      title: `${t(`themes.${worksheetSettings.theme}`)} - ${t(`operations.${worksheetSettings.operation}`)}`,
-      settings: worksheetSettings,
+      title,
+      settings: updatedSettings,
       problems,
       createdAt: new Date(),
     };
@@ -59,24 +96,34 @@ export default function Create() {
               />
             </div>
 
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">Operation</h2>
-              <div className="grid grid-cols-2 gap-2">
-                {operations.map((op) => (
-                  <button
-                    key={op}
-                    onClick={() => updateWorksheetSettings({ operation: op })}
-                    className={`p-3 rounded-lg border-2 transition-all ${
-                      worksheetSettings.operation === op
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
-                    {t(`operations.${op}`)}
-                  </button>
-                ))}
-              </div>
-            </div>
+            {/* Operation Selector with Multiplication Tables */}
+            <OperationSelector
+              selectedOperations={worksheetSettings.operations || [worksheetSettings.operation]}
+              multiplicationTables={worksheetSettings.multiplicationTables || []}
+              onOperationsChange={(operations) => {
+                updateWorksheetSettings({ 
+                  operations,
+                  operation: operations[0] || 'addition',
+                });
+              }}
+              onMultiplicationTablesChange={(tables) => {
+                updateWorksheetSettings({ multiplicationTables: tables });
+              }}
+            />
+
+            {/* Operation Subtype Selector */}
+            <OperationSubtypeSelector
+              selectedOperations={worksheetSettings.operations || [worksheetSettings.operation]}
+              selectedSubtypes={worksheetSettings.operationSubtypes || {}}
+              onSubtypesChange={(operation, subtypes) => {
+                updateWorksheetSettings({
+                  operationSubtypes: {
+                    ...(worksheetSettings.operationSubtypes || {}),
+                    [operation]: subtypes
+                  }
+                });
+              }}
+            />
 
             <div>
               <h2 className="text-2xl font-semibold mb-4">Difficulty</h2>
@@ -131,7 +178,6 @@ export default function Create() {
                   { key: 'showSolutions', label: t('settings.showSolutions') },
                   { key: 'carryOver', label: t('settings.carryOver') },
                   { key: 'placeholders', label: t('settings.placeholders') },
-                  { key: 'mixedOperations', label: t('settings.mixedOperations') },
                 ].map(({ key, label }) => (
                   <label key={key} className="flex items-center space-x-2">
                     <input
@@ -146,20 +192,64 @@ export default function Create() {
               </div>
             </div>
 
-            <div className="flex space-x-4">
+            {/* Problem Filters */}
+            <ProblemFilters
+              suppressTrivial={worksheetSettings.suppressTrivial || false}
+              avoidDuplicates={worksheetSettings.avoidDuplicates || false}
+              onSuppressTrivialChange={(value) => updateWorksheetSettings({ suppressTrivial: value })}
+              onAvoidDuplicatesChange={(value) => updateWorksheetSettings({ avoidDuplicates: value })}
+            />
+
+            {/* Layout Configuration */}
+            <LayoutConfigurator
+              selectedOperations={worksheetSettings.operations || [worksheetSettings.operation]}
+              columnsPerOperation={worksheetSettings.columnsPerOperation || {
+                addition: 2,
+                subtraction: 2,
+                multiplication: 2,
+                division: 2
+              }}
+              pageFormat={worksheetSettings.pageFormat || 'A4'}
+              onColumnsChange={(operation, columns) => {
+                updateWorksheetSettings({
+                  columnsPerOperation: {
+                    ...(worksheetSettings.columnsPerOperation || {
+                      addition: 2,
+                      subtraction: 2,
+                      multiplication: 2,
+                      division: 2
+                    }),
+                    [operation]: columns
+                  }
+                });
+              }}
+              onPageFormatChange={(format) => {
+                updateWorksheetSettings({ pageFormat: format });
+              }}
+            />
+
+            <div className="flex flex-wrap gap-3">
               <button
                 onClick={generateWorksheet}
-                className="flex-1 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
+                className="flex-1 min-w-[120px] py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
               >
                 {t('actions.generate')}
               </button>
               {currentWorksheet && (
-                <button
-                  onClick={handlePrint}
-                  className="flex-1 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition"
-                >
-                  {t('actions.print')}
-                </button>
+                <>
+                  <button
+                    onClick={handlePrint}
+                    className="flex-1 min-w-[120px] py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition"
+                  >
+                    {t('actions.print')}
+                  </button>
+                  <button
+                    onClick={handleExportPDF}
+                    className="flex-1 min-w-[120px] py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
+                  >
+                    {t('actions.exportPDF')}
+                  </button>
+                </>
               )}
             </div>
           </motion.div>

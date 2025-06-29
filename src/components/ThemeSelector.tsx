@@ -34,15 +34,15 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
           whileTap={{ scale: 0.95 }}
           onClick={() => onSelectTheme(theme)}
           className={cn(
-            'p-6 rounded-lg border-2 transition-all',
-            'flex flex-col items-center space-y-2',
+            'p-4 rounded-lg border-2 transition-all',
+            'flex flex-col items-center space-y-2 min-w-0',
             selectedTheme === theme
               ? 'border-blue-500 bg-blue-50'
               : 'border-gray-300 hover:border-gray-400'
           )}
         >
           <span className="text-4xl">{themeIcons[theme]}</span>
-          <span className="text-sm font-medium">{t(`themes.${theme}`)}</span>
+          <span className="text-xs font-medium text-center break-words w-full">{t(`themes.${theme}`)}</span>
         </motion.button>
       ))}
     </div>

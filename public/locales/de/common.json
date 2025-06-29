@@ -17,17 +17,19 @@
     "switch": "Modus wechseln"
   },
   "themes": {
-    "space": "Weltraumabenteuer",
-    "dino": "Dino-Entdeckung",
-    "castle": "Mittelalter-Quest",
-    "ocean": "Ozean-Erforscher",
-    "circus": "Zirkus-Spektakel"
+    "space": "Weltraum",
+    "dino": "Dino",
+    "castle": "Mittelalter",
+    "ocean": "Ozean",
+    "circus": "Zirkus"
   },
   "operations": {
+    "title": "Rechenarten",
     "addition": "Addition",
     "subtraction": "Subtraktion",
     "multiplication": "Multiplikation",
-    "division": "Division"
+    "division": "Division",
+    "multiplicationTables": "Malreihen"
   },
   "difficulty": {
     "easy": "Einfach (1-10)",
@@ -51,7 +53,10 @@
     "save": "Speichern",
     "load": "Laden",
     "share": "Teilen",
-    "play": "Interaktiv spielen"
+    "play": "Interaktiv spielen",
+    "selectAll": "Alle auswählen",
+    "selectNone": "Keine auswählen",
+    "exportPDF": "Als PDF exportieren"
   },
   "game": {
     "score": "Punkte",
@@ -61,7 +66,19 @@
     "nextProblem": "Nächste Aufgabe",
     "complete": "Arbeitsblatt komplett!",
     "stars": "Sterne",
-    "points": "Punkte"
+    "points": "Punkte",
+    "growthMindset": [
+      "Fast geschafft! Jeder Fehler bringt dich näher zur Lösung!",
+      "Super, dass du es versuchst! Lernen braucht Zeit.",
+      "Fehler sind Helfer! Was kannst du daraus lernen?",
+      "Du bist auf dem richtigen Weg! Versuch es noch einmal.",
+      "Toll, dass du nicht aufgibst! Das ist der Weg zum Erfolg.",
+      "Jeder Meister hat mal klein angefangen. Weiter so!"
+    ],
+    "infiniteMode": "Endlos-Modus",
+    "exitInfiniteMode": "Endlos-Modus beenden",
+    "levelUp": "Level Up! 🎉",
+    "newChallenge": "Neue Herausforderung!"
   },
   "teacher": {
     "classManagement": "Klassenverwaltung",
@@ -73,5 +90,54 @@
     "myWorksheets": "Meine Arbeitsblätter",
     "achievements": "Erfolge",
     "progress": "Mein Fortschritt"
+  },
+  "layout": {
+    "title": "Layout-Einstellungen",
+    "pageFormat": "Seitenformat",
+    "columnsPerOperation": "Spalten pro Rechenart",
+    "column": "Spalte",
+    "columns": "Spalten"
+  },
+  "home": {
+    "hero": {
+      "title": "Rechenblatt - Mathe-Arbeitsblätter",
+      "subtitle": "Erstelle unterhaltsame und ansprechende Mathe-Arbeitsblätter",
+      "generateButton": "Arbeitsblatt erstellen",
+      "playButton": "Interaktiv spielen"
+    },
+    "features": {
+      "themes": {
+        "title": "Schöne Themen",
+        "description": "Wähle aus 5 ansprechenden Themen, um Mathematik unterhaltsam zu gestalten"
+      },
+      "printReady": {
+        "title": "Druckbereit",
+        "description": "Erstelle optimierte Arbeitsblätter zum Drucken"
+      },
+      "interactive": {
+        "title": "Interaktiver Modus",
+        "description": "Spiele und lerne mit sofortigem Feedback"
+      },
+      "teacherTools": {
+        "title": "Lehrer-Werkzeuge",
+        "description": "Verfolge Fortschritte und verwalte Aufgaben"
+      }
+    },
+    "footer": "© 2024 Rechenblatt. Mit ❤️ für Mathematik-Lernende erstellt."
+  },
+  "progress": {
+    "title": "Fortschritt",
+    "score": "Punktzahl",
+    "exit": "Spiel beenden"
+  },
+  "filters": {
+    "title": "Aufgabenfilter",
+    "suppressTrivial": "Triviale Aufgaben unterdrücken",
+    "suppressTrivialDesc": "Überspringe Aufgaben wie 1+1, 0×n, n÷1",
+    "avoidDuplicates": "Duplikate vermeiden",
+    "avoidDuplicatesDesc": "Stelle sicher, dass jede Aufgabe einzigartig ist"
+  },
+  "common": {
+    "selected": "ausgewählt"
   }
 }

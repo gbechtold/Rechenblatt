@@ -12,23 +12,23 @@ export default function Home() {
   const features = [
     {
       icon: '🎨',
-      title: 'Beautiful Themes',
-      description: 'Choose from 5 engaging themes to make math fun',
+      titleKey: 'themes',
+      descriptionKey: 'themes',
     },
     {
       icon: '🖨️',
-      title: 'Print Ready',
-      description: 'Generate worksheets optimized for printing',
+      titleKey: 'printReady',
+      descriptionKey: 'printReady',
     },
     {
       icon: '🎮',
-      title: 'Interactive Mode',
-      description: 'Play and learn with instant feedback',
+      titleKey: 'interactive',
+      descriptionKey: 'interactive',
     },
     {
       icon: '👨‍🏫',
-      title: 'Teacher Tools',
-      description: 'Track progress and manage assignments',
+      titleKey: 'teacherTools',
+      descriptionKey: 'teacherTools',
     },
   ];
 
@@ -41,7 +41,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             className="text-5xl md:text-6xl font-bold mb-6"
           >
-            {t('app.title')}
+            {t('home.hero.title')}
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: -20 }}
@@ -49,7 +49,7 @@ export default function Home() {
             transition={{ delay: 0.1 }}
             className="text-xl md:text-2xl text-gray-600 mb-8"
           >
-            {t('app.description')}
+            {t('home.hero.subtitle')}
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -61,13 +61,13 @@ export default function Home() {
               href="/create"
               className="px-8 py-4 bg-blue-600 text-white rounded-lg text-lg font-semibold hover:bg-blue-700 transition"
             >
-              {t('actions.generate')}
+              {t('home.hero.generateButton')}
             </Link>
             <Link
               href="/play"
               className="px-8 py-4 bg-green-600 text-white rounded-lg text-lg font-semibold hover:bg-green-700 transition"
             >
-              {t('actions.play')}
+              {t('home.hero.playButton')}
             </Link>
           </motion.div>
         </div>
@@ -79,15 +79,15 @@ export default function Home() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
               <motion.div
-                key={feature.title}
+                key={feature.titleKey}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
                 className="bg-white p-6 rounded-lg shadow-lg text-center"
               >
                 <div className="text-4xl mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
+                <h3 className="text-xl font-semibold mb-2">{t(`home.features.${feature.titleKey}.title`)}</h3>
+                <p className="text-gray-600">{t(`home.features.${feature.descriptionKey}.description`)}</p>
               </motion.div>
             ))}
           </div>

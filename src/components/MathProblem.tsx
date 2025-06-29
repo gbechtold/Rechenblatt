@@ -3,6 +3,7 @@ import { Problem } from '@/types';
 import { getOperationSymbol } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'next-i18next';
 
 interface MathProblemProps {
   problem: Problem;
@@ -21,9 +22,11 @@ export const MathProblem: React.FC<MathProblemProps> = ({
   theme = 'default',
   index = 0,
 }) => {
+  const { t } = useTranslation('common');
   const [userAnswer, setUserAnswer] = useState<string>('');
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [attempts, setAttempts] = useState(0);
 
   const handleSubmit = () => {
     const answer = parseInt(userAnswer);
@@ -32,10 +35,17 @@ export const MathProblem: React.FC<MathProblemProps> = ({
     const correct = checkAnswer(answer);
     setIsCorrect(correct);
     setShowFeedback(true);
+    setAttempts(attempts + 1);
     
-    if (onAnswer) {
+    if (onAnswer && correct) {
       onAnswer(answer, correct);
     }
+  };
+
+  const handleRetry = () => {
+    setUserAnswer('');
+    setShowFeedback(false);
+    setIsCorrect(false);
   };
 
   const checkAnswer = (answer: number): boolean => {
@@ -46,6 +56,11 @@ export const MathProblem: React.FC<MathProblemProps> = ({
     } else {
       return answer === problem.answer;
     }
+  };
+
+  const getGrowthMindsetMessage = () => {
+    const messages = t('game.growthMindset', { returnObjects: true }) as string[];
+    return messages[attempts % messages.length] || messages[0];
   };
 
   const renderOperand = (value: number, isPlaceholder: boolean) => {
@@ -111,11 +126,25 @@ export const MathProblem: React.FC<MathProblemProps> = ({
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             className={cn(
-              'mt-2 px-4 py-2 rounded text-white font-bold',
-              isCorrect ? 'bg-green-500' : 'bg-red-500'
+              'mt-2 px-4 py-2 rounded-lg shadow-lg',
+              isCorrect ? 'bg-green-500 text-white' : 'bg-yellow-100 text-gray-800'
             )}
           >
-            {isCorrect ? '✓ Correct!' : '✗ Try Again'}
+            {isCorrect ? (
+              <div className="text-center font-bold">
+                ✓ {t('game.correct')}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="font-semibold">{getGrowthMindsetMessage()}</div>
+                <button
+                  onClick={handleRetry}
+                  className="w-full px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                >
+                  {t('game.tryAgain')}
+                </button>
+              </div>
+            )}
           </motion.div>
         )}
       </div>

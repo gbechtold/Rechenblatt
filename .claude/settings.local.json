@@ -20,7 +20,19 @@
       "Bash(fly status:*)",
       "Bash(open https://rechenblatt.fly.dev)",
       "Bash(fly logs:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(curl:*)",
+      "Bash(fly info:*)",
+      "Bash(fly ips:*)",
+      "Bash(fly open:*)",
+      "Bash(fly machine start:*)",
+      "Bash(chmod:*)",
+      "Bash(./smoke-tests.sh:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(npm run:*)",
+      "Bash(npx tsc:*)",
+      "Bash(pkill:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }

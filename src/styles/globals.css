@@ -20,7 +20,7 @@
 
 @layer components {
   .math-box {
-    @apply border-2 border-gray-400 w-12 h-12 flex items-center justify-center text-2xl font-bold;
+    @apply border-2 border-gray-400 min-w-[3rem] h-12 px-2 flex items-center justify-center text-2xl font-bold;
   }
 
   .theme-space {
@@ -50,6 +50,10 @@
     margin: 20mm;
   }
 
+  @page :first {
+    margin-top: 15mm;
+  }
+
   body {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
@@ -69,9 +73,84 @@
 
   .worksheet-page {
     page-break-after: always;
+    min-height: 100vh;
   }
 
   .worksheet-page:last-child {
     page-break-after: avoid;
+  }
+
+  /* Hide decorative elements in print */
+  .worksheet-page [class*="absolute"] {
+    display: none !important;
+  }
+
+  /* Optimize spacing for print */
+  .space-y-8 > * + * {
+    margin-top: 1.5rem !important;
+  }
+
+  /* Better math problem spacing */
+  .math-problem {
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Reduce grid gaps for better space usage */
+  [class*="gap-8"] {
+    gap: 1.5rem !important;
+  }
+}
+
+/* Letter format support */
+@media print and (orientation: portrait) {
+  .page-format-letter {
+    @page {
+      size: letter;
+      margin: 0.75in;
+    }
+  }
+}
+
+/* PDF export specific styles */
+.pdf-export {
+  .worksheet-page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 15mm 20mm;
+    background: white;
+    position: relative;
+  }
+  
+  &.page-format-letter .worksheet-page {
+    width: 8.5in;
+    min-height: 11in;
+    padding: 0.5in 0.75in;
+  }
+  
+  /* Hide all absolute positioned elements */
+  [class*="absolute"] {
+    display: none !important;
+  }
+  
+  /* Optimize math problem display */
+  .math-problem {
+    padding: 0.25rem;
+    margin: 0;
+  }
+  
+  .math-box {
+    min-width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.25rem;
+  }
+  
+  /* Tighter spacing for PDF */
+  .space-y-6 > * + * {
+    margin-top: 1rem;
+  }
+  
+  [class*="gap-6"] {
+    gap: 1rem;
   }
 }

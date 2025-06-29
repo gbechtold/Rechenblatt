@@ -93,7 +93,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       <main className="flex-grow">{children}</main>
       <footer className="no-print bg-gray-800 text-white py-8 mt-16">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <p>&copy; 2024 Rechenblatt. Made with ❤️ for math learners.</p>
+          <p>{t('home.footer')}</p>
         </div>
       </footer>
     </div>

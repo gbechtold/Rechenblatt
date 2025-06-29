@@ -24,10 +24,13 @@
     "circus": "Circus Spectacular"
   },
   "operations": {
+    "title": "Operations",
     "addition": "Addition",
     "subtraction": "Subtraction",
     "multiplication": "Multiplication",
-    "division": "Division"
+    "division": "Division",
+    "multiplicationTables": "Times Tables",
+    "advancedTypes": "Advanced Types"
   },
   "difficulty": {
     "easy": "Easy (1-10)",
@@ -51,7 +54,10 @@
     "save": "Save",
     "load": "Load",
     "share": "Share",
-    "play": "Play Interactive"
+    "play": "Play Interactive",
+    "selectAll": "Select All",
+    "selectNone": "Select None",
+    "exportPDF": "Export as PDF"
   },
   "game": {
     "score": "Score",
@@ -61,7 +67,19 @@
     "nextProblem": "Next Problem",
     "complete": "Worksheet Complete!",
     "stars": "Stars",
-    "points": "Points"
+    "points": "Points",
+    "growthMindset": [
+      "Almost there! Every mistake brings you closer to the solution!",
+      "Great effort! Learning takes time.",
+      "Mistakes are helpers! What can you learn from this?",
+      "You're on the right track! Give it another try.",
+      "Awesome that you're not giving up! That's the path to success.",
+      "Every master started small. Keep going!"
+    ],
+    "infiniteMode": "Infinite Mode",
+    "exitInfiniteMode": "Exit Infinite Mode",
+    "levelUp": "Level Up! 🎉",
+    "newChallenge": "New Challenge!"
   },
   "teacher": {
     "classManagement": "Class Management",
@@ -73,5 +91,54 @@
     "myWorksheets": "My Worksheets",
     "achievements": "Achievements",
     "progress": "My Progress"
+  },
+  "layout": {
+    "title": "Layout Settings",
+    "pageFormat": "Page Format",
+    "columnsPerOperation": "Columns per Operation",
+    "column": "column",
+    "columns": "columns"
+  },
+  "home": {
+    "hero": {
+      "title": "Rechenblatt - Math Worksheets",
+      "subtitle": "Create fun and engaging math worksheets",
+      "generateButton": "Generate Worksheet",
+      "playButton": "Play Interactive"
+    },
+    "features": {
+      "themes": {
+        "title": "Beautiful Themes",
+        "description": "Choose from 5 engaging themes to make math fun"
+      },
+      "printReady": {
+        "title": "Print Ready",
+        "description": "Generate worksheets optimized for printing"
+      },
+      "interactive": {
+        "title": "Interactive Mode",
+        "description": "Play and learn with instant feedback"
+      },
+      "teacherTools": {
+        "title": "Teacher Tools",
+        "description": "Track progress and manage assignments"
+      }
+    },
+    "footer": "© 2024 Rechenblatt. Made with ❤️ for math learners."
+  },
+  "progress": {
+    "title": "Progress",
+    "score": "Score",
+    "exit": "Exit Game"
+  },
+  "filters": {
+    "title": "Problem Filters",
+    "suppressTrivial": "Suppress trivial problems",
+    "suppressTrivialDesc": "Skip problems like 1+1, 0×n, n÷1",
+    "avoidDuplicates": "Avoid duplicate problems",
+    "avoidDuplicatesDesc": "Ensure each problem is unique"
+  },
+  "common": {
+    "selected": "selected"
   }
 }

@@ -1,4 +1,5 @@
-import { Operation, Difficulty, Problem, WorksheetSettings, NumberRange } from '@/types';
+import { Operation, Difficulty, Problem, WorksheetSettings, NumberRange, AdditionSubtype, SubtractionSubtype } from '@/types';
+import { getAdditionSubtypeRange, getSubtractionSubtypeRange, generateTensNumber, isTrivialProblem } from './subtypeRanges';
 
 const difficultyRanges: Record<Difficulty, NumberRange> = {
   easy: { min: 1, max: 10 },
@@ -13,6 +14,15 @@ function generateId(): string {
 
 function getRandomNumber(range: NumberRange): number {
   return Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
+}
+
+function getOperandRangesForSubtype(operation: Operation, subtype: string): { operand1: NumberRange; operand2: NumberRange } | null {
+  if (operation === 'addition') {
+    return getAdditionSubtypeRange(subtype as AdditionSubtype);
+  } else if (operation === 'subtraction') {
+    return getSubtractionSubtypeRange(subtype as SubtractionSubtype);
+  }
+  return null;
 }
 
 function calculateAnswer(operand1: number, operand2: number, operation: Operation): number {
@@ -44,66 +54,146 @@ function hasCarryOver(operand1: number, operand2: number, operation: Operation):
   return false;
 }
 
-function generateProblem(settings: WorksheetSettings): Problem {
-  const range = settings.numberRange || difficultyRanges[settings.difficulty];
-  let operand1 = getRandomNumber(range);
-  let operand2 = getRandomNumber(range);
+function generateProblem(settings: WorksheetSettings, usedProblems?: Set<string>): Problem {
   let operation = settings.operation;
+  let attempts = 0;
+  const maxAttempts = 100;
 
-  if (settings.mixedOperations) {
-    const operations: Operation[] = ['addition', 'subtraction', 'multiplication', 'division'];
-    operation = operations[Math.floor(Math.random() * operations.length)];
-  }
-
-  // Ensure valid problems
-  if (operation === 'subtraction') {
-    // Make sure result is positive
-    if (operand2 > operand1) {
-      [operand1, operand2] = [operand2, operand1];
+  while (attempts < maxAttempts) {
+    attempts++;
+    
+    // Handle multiple operations
+    if (settings.mixedOperations && settings.operations && settings.operations.length > 0) {
+      operation = settings.operations[Math.floor(Math.random() * settings.operations.length)];
+    } else if (settings.mixedOperations) {
+      const operations: Operation[] = ['addition', 'subtraction', 'multiplication', 'division'];
+      operation = operations[Math.floor(Math.random() * operations.length)];
     }
-  } else if (operation === 'division') {
-    // Ensure clean division
-    operand1 = operand2 * getRandomNumber({ min: 1, max: 10 });
-  }
 
-  // Check carry-over requirement
-  if (settings.carryOver && (operation === 'addition' || operation === 'subtraction')) {
-    let attempts = 0;
-    while (!hasCarryOver(operand1, operand2, operation) && attempts < 50) {
+    // Get operation subtypes if specified
+    const subtypes = settings.operationSubtypes?.[operation];
+    let selectedSubtype = subtypes && subtypes.length > 0 
+      ? subtypes[Math.floor(Math.random() * subtypes.length)]
+      : null;
+
+    // Get ranges based on subtype or default
+    let operand1: number;
+    let operand2: number;
+    
+    if (selectedSubtype && (operation === 'addition' || operation === 'subtraction')) {
+      const ranges = getOperandRangesForSubtype(operation, selectedSubtype);
+      if (ranges) {
+        // For 'Z' operations, ensure we generate multiples of 10
+        if (selectedSubtype.includes('Z+E') || selectedSubtype.includes('Z-E')) {
+          operand1 = generateTensNumber(ranges.operand1);
+          operand2 = getRandomNumber(ranges.operand2);
+        } else if (selectedSubtype.includes('ZE+Z') || selectedSubtype.includes('ZE-Z')) {
+          operand1 = getRandomNumber(ranges.operand1);
+          operand2 = generateTensNumber(ranges.operand2);
+        } else {
+          operand1 = getRandomNumber(ranges.operand1);
+          operand2 = getRandomNumber(ranges.operand2);
+        }
+      } else {
+        const range = settings.numberRange || difficultyRanges[settings.difficulty];
+        operand1 = getRandomNumber(range);
+        operand2 = getRandomNumber(range);
+      }
+    } else {
+      const range = settings.numberRange || difficultyRanges[settings.difficulty];
       operand1 = getRandomNumber(range);
       operand2 = getRandomNumber(range);
-      if (operation === 'subtraction' && operand2 > operand1) {
+    }
+
+    // Handle multiplication tables
+    if ((operation === 'multiplication' || operation === 'division') && 
+        settings.multiplicationTables && 
+        settings.multiplicationTables.length > 0) {
+      const table = settings.multiplicationTables[Math.floor(Math.random() * settings.multiplicationTables.length)];
+      
+      if (operation === 'multiplication') {
+        operand1 = table;
+        operand2 = getRandomNumber({ min: 1, max: 10 });
+        if (Math.random() > 0.5) {
+          [operand1, operand2] = [operand2, operand1];
+        }
+      } else if (operation === 'division') {
+        operand2 = table;
+        const multiplier = getRandomNumber({ min: 1, max: 10 });
+        operand1 = operand2 * multiplier;
+      }
+    }
+    // Ensure valid problems for non-multiplication table cases
+    else if (operation === 'subtraction') {
+      if (operand2 > operand1) {
         [operand1, operand2] = [operand2, operand1];
       }
-      attempts++;
+    } else if (operation === 'division' && !selectedSubtype) {
+      operand1 = operand2 * getRandomNumber({ min: 1, max: 10 });
     }
+
+    // Check carry-over requirement
+    if (settings.carryOver && (operation === 'addition' || operation === 'subtraction')) {
+      if (!hasCarryOver(operand1, operand2, operation)) {
+        continue; // Try again
+      }
+    }
+
+    // Check for trivial problems
+    if (settings.suppressTrivial && isTrivialProblem(operand1, operand2, operation)) {
+      continue; // Try again
+    }
+
+    // Check for duplicates
+    const problemKey = `${operand1}${operation}${operand2}`;
+    if (settings.avoidDuplicates && usedProblems?.has(problemKey)) {
+      continue; // Try again
+    }
+
+    const answer = calculateAnswer(operand1, operand2, operation);
+    
+    const problem: Problem = {
+      id: generateId(),
+      operand1,
+      operand2,
+      operation,
+      answer,
+    };
+
+    // Add placeholder if enabled
+    if (settings.placeholders) {
+      const placeholderOptions: ('operand1' | 'operand2' | 'answer')[] = ['operand1', 'operand2', 'answer'];
+      problem.placeholder = placeholderOptions[Math.floor(Math.random() * placeholderOptions.length)];
+    }
+
+    return problem;
   }
 
-  const answer = calculateAnswer(operand1, operand2, operation);
-  
-  const problem: Problem = {
+  // Fallback if we couldn't generate a valid problem
+  const range = settings.numberRange || difficultyRanges[settings.difficulty];
+  return {
     id: generateId(),
-    operand1,
-    operand2,
+    operand1: getRandomNumber(range),
+    operand2: getRandomNumber(range),
     operation,
-    answer,
+    answer: 0,
   };
-
-  // Add placeholder if enabled
-  if (settings.placeholders) {
-    const placeholderOptions: ('operand1' | 'operand2' | 'answer')[] = ['operand1', 'operand2', 'answer'];
-    problem.placeholder = placeholderOptions[Math.floor(Math.random() * placeholderOptions.length)];
-  }
-
-  return problem;
 }
 
 export function generateWorksheetProblems(settings: WorksheetSettings): Problem[] {
   const problems: Problem[] = [];
   const problemCount = settings.problemsPerPage;
+  const usedProblems = new Set<string>();
 
   for (let i = 0; i < problemCount; i++) {
-    problems.push(generateProblem(settings));
+    const problem = generateProblem(settings, usedProblems);
+    problems.push(problem);
+    
+    // Track used problems if avoiding duplicates
+    if (settings.avoidDuplicates) {
+      const problemKey = `${problem.operand1}${problem.operation}${problem.operand2}`;
+      usedProblems.add(problemKey);
+    }
   }
 
   return problems;

@@ -35,6 +35,7 @@ interface AppState {
 const defaultSettings: WorksheetSettings = {
   theme: 'space',
   operation: 'addition',
+  operations: ['addition'],
   difficulty: 'easy',
   problemsPerPage: 12,
   columns: 2,
@@ -44,6 +45,14 @@ const defaultSettings: WorksheetSettings = {
   placeholders: false,
   mixedOperations: false,
   numberRange: { min: 1, max: 10 },
+  multiplicationTables: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+  columnsPerOperation: {
+    addition: 2,
+    subtraction: 2,
+    multiplication: 2,
+    division: 2
+  },
+  pageFormat: 'A4',
 };
 
 export const useStore = create<AppState>()(
