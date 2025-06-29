@@ -77,34 +77,46 @@ export const WorksheetView = forwardRef<HTMLDivElement, WorksheetViewProps>(
     };
 
     return (
-      <div ref={ref} className="worksheet-page bg-white p-8 relative overflow-hidden">
-        {getThemeDecorations(settings.theme)}
+      <div ref={ref} className="worksheet-page bg-white p-8 print:p-0 relative overflow-hidden">
+        {!isInteractive && getThemeDecorations(settings.theme)}
         
-        <div className="text-center mb-6 print:mb-4">
-          <h1 className="text-3xl font-bold mb-4">{title}</h1>
-          <div className="flex justify-between items-start max-w-2xl mx-auto">
-            <div className="flex flex-col">
-              <span className="text-gray-600 text-left mb-1">Name:</span>
-              <div className="border-b-2 border-gray-400 w-64 h-8"></div>
+        {/* Header Section */}
+        <div className="print:border-b print:border-gray-300 print:pb-4 print:mb-6">
+          <h1 className="text-3xl font-bold text-center mb-6 print:text-2xl print:mb-4">{title}</h1>
+          <div className="flex justify-between items-start max-w-2xl mx-auto print:max-w-full">
+            <div className="flex flex-col print:flex-1">
+              <span className="text-gray-700 text-sm font-medium mb-1 print:text-base">Name:</span>
+              <div className="border-b-2 border-gray-400 w-64 h-8 print:w-full print:mr-8"></div>
             </div>
-            <div className="flex flex-col">
-              <span className="text-gray-600 text-left mb-1">Date:</span>
-              <div className="border-b-2 border-gray-400 w-32 h-8"></div>
+            <div className="flex flex-col print:w-40">
+              <span className="text-gray-700 text-sm font-medium mb-1 print:text-base">Datum:</span>
+              <div className="border-b-2 border-gray-400 w-32 h-8 print:w-full"></div>
             </div>
           </div>
         </div>
 
-        {/* Render problems grouped by operation if multiple operations are selected */}
-        {problemsByOperation ? (
-          <div className="space-y-4 print:space-y-3">
-            {settings.operations!.map((operation) => {
-              const operationProblems = problemsByOperation[operation] || [];
-              if (operationProblems.length === 0) return null;
-              
-              const columns = settings.columnsPerOperation?.[operation] || settings.columns;
-              return (
-                <div key={operation} className={cn('grid gap-4 print:gap-2', getColumnsClass(columns))}>
-                  {operationProblems.map((problem, index) => (
+        {/* Main Content Area */}
+        <div className="print:px-8 print:py-4">
+          {/* Render problems grouped by operation if multiple operations are selected */}
+          {problemsByOperation ? (
+            <div className="space-y-6 print:space-y-8">
+              {settings.operations!.map((operation, opIndex) => {
+                const operationProblems = problemsByOperation[operation] || [];
+                if (operationProblems.length === 0) return null;
+                
+                const columns = settings.columnsPerOperation?.[operation] || settings.columns;
+                return (
+                  <div key={operation} className="print:break-inside-avoid">
+                    {settings.operations!.length > 1 && (
+                      <h3 className="text-lg font-semibold mb-3 print:mb-4 text-gray-700">
+                        {operation === 'addition' && 'Addition'}
+                        {operation === 'subtraction' && 'Subtraktion'}
+                        {operation === 'multiplication' && 'Multiplikation'}
+                        {operation === 'division' && 'Division'}
+                      </h3>
+                    )}
+                    <div className={cn('grid gap-x-8 gap-y-4 print:gap-x-12 print:gap-y-6', getColumnsClass(columns))}>
+                      {operationProblems.map((problem, index) => (
                     <MathProblem
                       key={problem.id}
                       problem={problem}
@@ -117,13 +129,14 @@ export const WorksheetView = forwardRef<HTMLDivElement, WorksheetViewProps>(
                       index={settings.showNumbers ? problems.indexOf(problem) + 1 : 0}
                     />
                   ))}
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className={cn('grid gap-4 print:gap-2', getColumnsClass(settings.columns))}>
-            {problems.map((problem, index) => (
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className={cn('grid gap-x-8 gap-y-4 print:gap-x-12 print:gap-y-6', getColumnsClass(settings.columns))}>
+              {problems.map((problem, index) => (
               <MathProblem
                 key={problem.id}
                 problem={problem}
@@ -136,9 +149,11 @@ export const WorksheetView = forwardRef<HTMLDivElement, WorksheetViewProps>(
                 index={settings.showNumbers ? index + 1 : 0}
               />
             ))}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
 
+        {/* Footer */}
         <div className="mt-8 text-center text-sm text-gray-500 print:hidden">
           Page 1 of 1
         </div>

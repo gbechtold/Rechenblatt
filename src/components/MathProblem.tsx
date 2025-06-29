@@ -77,9 +77,9 @@ export const MathProblem: React.FC<MathProblemProps> = ({
           />
         );
       }
-      return <div className="math-box">__</div>;
+      return <div className="math-box print:border-gray-600"></div>;
     }
-    return <div className="math-box">{value}</div>;
+    return <div className="math-box print:border-gray-600">{value}</div>;
   };
 
   const problemVariants = {
@@ -93,24 +93,24 @@ export const MathProblem: React.FC<MathProblemProps> = ({
 
   return (
     <motion.div
-      className="math-problem p-2 print:p-1 flex items-center justify-center"
+      className="math-problem p-2 print:p-0 flex"
       variants={problemVariants}
       initial="hidden"
       animate="visible"
     >
-      <div className="flex flex-col items-center space-y-1">
+      <div className="flex items-center space-x-3 print:space-x-2 w-full">
         {index > 0 && (
-          <span className="text-sm font-semibold text-gray-600 print:text-xs">
+          <span className="text-sm font-semibold text-gray-600 print:text-base print:w-8">
             {index}.
           </span>
         )}
-        <div className="flex items-center space-x-2 print:space-x-1">
+        <div className="flex items-center space-x-2 print:space-x-3 flex-1">
           {renderOperand(problem.operand1, problem.placeholder === 'operand1')}
-          <span className="text-2xl font-bold print:text-xl">
+          <span className="text-2xl font-bold print:text-xl print:px-1">
             {getOperationSymbol(problem.operation)}
           </span>
           {renderOperand(problem.operand2, problem.placeholder === 'operand2')}
-          <span className="text-2xl font-bold print:text-xl">=</span>
+          <span className="text-2xl font-bold print:text-xl print:px-1">=</span>
           {renderOperand(problem.answer, problem.placeholder === 'answer' || !problem.placeholder)}
         </div>
         {isInteractive && !showFeedback && userAnswer && (

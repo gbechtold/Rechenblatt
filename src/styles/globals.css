@@ -47,16 +47,13 @@
 @media print {
   @page {
     size: A4;
-    margin: 15mm 20mm;
-  }
-
-  @page :first {
-    margin-top: 10mm;
+    margin: 20mm;
   }
 
   body {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
+    font-family: Arial, sans-serif;
   }
 
   .no-print {
@@ -67,16 +64,12 @@
     display: block !important;
   }
 
-  .math-problem {
-    page-break-inside: avoid;
-    padding: 0.75rem 0.5rem;
-    margin: 0;
-  }
-
   .worksheet-page {
-    page-break-after: always;
+    width: 100%;
     min-height: 100vh;
-    padding: 1.5rem !important;
+    padding: 20mm !important;
+    page-break-after: always;
+    background: white !important;
   }
 
   .worksheet-page:last-child {
@@ -84,32 +77,73 @@
   }
 
   /* Hide decorative elements in print */
-  .worksheet-page [class*="absolute"] {
+  [class*="absolute"] {
     display: none !important;
   }
 
-  /* Optimize math box for print */
+  /* Math problem layout */
+  .math-problem {
+    page-break-inside: avoid;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Math boxes styling */
   .math-box {
-    min-width: 2.5rem;
+    min-width: 3rem;
     height: 2.5rem;
     font-size: 1.25rem;
-    border-width: 1.5px;
+    border-bottom: 2px solid #374151;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
   }
 
-  /* Tighter grid spacing */
-  .grid {
-    row-gap: 1.5rem !important;
-    column-gap: 1rem !important;
-  }
-
-  /* Adjust font sizes for print */
+  /* Typography adjustments */
   h1 {
-    font-size: 1.75rem !important;
+    font-size: 1.875rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 1.5rem !important;
   }
 
-  /* Ensure proper problem numbering alignment */
-  .math-problem > div {
-    align-items: flex-start;
+  h3 {
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+  }
+
+  /* Problem numbering */
+  .text-base {
+    font-size: 1rem !important;
+  }
+
+  /* Operation symbols */
+  .text-xl {
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+  }
+
+  /* Grid spacing optimization */
+  .grid {
+    margin-top: 0 !important;
+  }
+
+  /* Ensure consistent spacing */
+  .space-y-8 > * + * {
+    margin-top: 2rem !important;
+  }
+
+  .gap-x-12 {
+    column-gap: 3rem !important;
+  }
+
+  .gap-y-6 {
+    row-gap: 1.5rem !important;
   }
 }
 
@@ -125,10 +159,12 @@
 
 /* PDF export specific styles */
 .pdf-export {
+  font-family: Arial, sans-serif;
+  
   .worksheet-page {
     width: 210mm;
     min-height: 297mm;
-    padding: 10mm 20mm;
+    padding: 20mm;
     background: white;
     position: relative;
   }
@@ -136,7 +172,7 @@
   &.page-format-letter .worksheet-page {
     width: 8.5in;
     min-height: 11in;
-    padding: 0.5in 0.75in;
+    padding: 0.75in;
   }
   
   /* Hide all absolute positioned elements */
@@ -144,32 +180,71 @@
     display: none !important;
   }
   
-  /* Optimize math problem display */
+  /* Header styling */
+  h1 {
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 16px;
+  }
+  
+  /* Math problem display */
   .math-problem {
-    padding: 0.5rem 0.25rem;
-    margin: 0;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
   }
   
   .math-box {
-    min-width: 2.5rem;
-    height: 2.5rem;
-    font-size: 1.25rem;
-    border-width: 1.5px;
+    min-width: 48px;
+    height: 40px;
+    font-size: 20px;
+    font-weight: 600;
+    border: none;
+    border-bottom: 2px solid #374151;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 4px;
   }
   
-  /* Title size */
-  h1 {
-    font-size: 1.75rem;
+  /* Operation symbols */
+  .text-xl {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 8px;
   }
   
-  /* Tighter spacing for PDF */
+  /* Problem numbering */
+  .text-base {
+    font-size: 16px;
+    font-weight: 600;
+    min-width: 32px;
+  }
+  
+  /* Grid layout */
   .grid {
-    row-gap: 1.25rem;
-    column-gap: 1rem;
+    margin-top: 0;
+  }
+  
+  .gap-x-12 {
+    column-gap: 48px;
+  }
+  
+  .gap-y-6 {
+    row-gap: 24px;
   }
   
   /* Name and date fields */
   .border-b-2 {
-    border-width: 1.5px;
+    border-width: 2px;
+    border-color: #374151;
   }
 }
