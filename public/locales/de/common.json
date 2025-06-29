@@ -56,7 +56,9 @@
     "play": "Interaktiv spielen",
     "selectAll": "Alle auswählen",
     "selectNone": "Keine auswählen",
-    "exportPDF": "Als PDF exportieren"
+    "exportPDF": "Als PDF exportieren",
+    "expand": "Zum Erweitern klicken",
+    "collapse": "Zum Einklappen klicken"
   },
   "game": {
     "score": "Punkte",
@@ -139,5 +141,18 @@
   },
   "common": {
     "selected": "ausgewählt"
+  },
+  "play": {
+    "settings": {
+      "title": "Spieleinstellungen",
+      "difficulty": "Schwierigkeit",
+      "problemCount": "Anzahl der Aufgaben",
+      "options": "Spieloptionen",
+      "startCustomGame": "Benutzerdefiniertes Spiel starten"
+    },
+    "savedWorksheets": "Gespeicherte Arbeitsblätter",
+    "noWorksheets": "Noch keine Arbeitsblätter vorhanden!",
+    "createFirst": "Erstelle dein erstes Arbeitsblatt",
+    "customGame": "Benutzerdefiniertes Spiel"
   }
 }

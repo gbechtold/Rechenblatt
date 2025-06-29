@@ -4,8 +4,10 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useStore } from '@/lib/store';
 import { WorksheetView } from '@/components/WorksheetView';
+import { PlaySettings } from '@/components/PlaySettings';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
+import { Worksheet, WorksheetSettings, Problem } from '@/types';
 
 export default function Play() {
   const { t } = useTranslation('common');
@@ -46,22 +48,56 @@ export default function Play() {
     startGame();
   };
 
+  const startCustomGame = (settings: WorksheetSettings, problems: Problem[]) => {
+    // Generate title based on selected operations
+    let title = t(`themes.${settings.theme}`);
+    if (settings.operations && settings.operations.length > 0) {
+      if (settings.operations.length === 1) {
+        title += ` - ${t(`operations.${settings.operations[0]}`)}`;
+      } else {
+        title += ` - ${t('settings.mixedOperations')}`;
+      }
+    } else {
+      title += ` - ${t(`operations.${settings.operation}`)}`;
+    }
+    
+    const customWorksheet: Worksheet = {
+      id: 'custom-' + Date.now(),
+      title: title + ' (' + t('play.customGame') + ')',
+      settings,
+      problems,
+      createdAt: new Date(),
+    };
+    
+    setCurrentWorksheet(customWorksheet);
+    setProblemsCompleted(0);
+    setShowCompletion(false);
+    startGame();
+  };
+
   if (!isPlaying || !currentWorksheet) {
     return (
       <div className="min-h-screen py-8">
         <div className="max-w-7xl mx-auto px-4">
           <h1 className="text-4xl font-bold text-center mb-8">{t('nav.play')}</h1>
           
-          {worksheets.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-xl text-gray-600 mb-4">No worksheets available yet!</p>
-              <a href="/create" className="text-blue-600 hover:underline">
-                Create your first worksheet →
-              </a>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {worksheets.map((worksheet) => (
+          {/* Custom Game Settings */}
+          <PlaySettings onStartGame={startCustomGame} />
+          
+          {/* Existing Worksheets */}
+          <div className="mt-8">
+            <h2 className="text-2xl font-semibold mb-4">{t('play.savedWorksheets')}</h2>
+            
+            {worksheets.length === 0 ? (
+              <div className="text-center py-10 bg-gray-50 rounded-lg">
+                <p className="text-lg text-gray-600 mb-4">{t('play.noWorksheets')}</p>
+                <a href="/create" className="text-blue-600 hover:underline">
+                  {t('play.createFirst')} →
+                </a>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {worksheets.map((worksheet) => (
                 <motion.div
                   key={worksheet.id}
                   whileHover={{ scale: 1.05 }}
@@ -83,8 +119,9 @@ export default function Play() {
                   </div>
                 </motion.div>
               ))}
-            </div>
-          )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );

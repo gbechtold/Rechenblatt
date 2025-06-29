@@ -57,7 +57,9 @@
     "play": "Play Interactive",
     "selectAll": "Select All",
     "selectNone": "Select None",
-    "exportPDF": "Export as PDF"
+    "exportPDF": "Export as PDF",
+    "expand": "Click to expand",
+    "collapse": "Click to collapse"
   },
   "game": {
     "score": "Score",
@@ -140,5 +142,18 @@
   },
   "common": {
     "selected": "selected"
+  },
+  "play": {
+    "settings": {
+      "title": "Custom Game Settings",
+      "difficulty": "Difficulty",
+      "problemCount": "Number of Problems",
+      "options": "Game Options",
+      "startCustomGame": "Start Custom Game"
+    },
+    "savedWorksheets": "Saved Worksheets",
+    "noWorksheets": "No worksheets available yet!",
+    "createFirst": "Create your first worksheet",
+    "customGame": "Custom Game"
   }
 }
