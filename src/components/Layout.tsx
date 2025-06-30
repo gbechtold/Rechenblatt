@@ -12,7 +12,7 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { t } = useTranslation('common');
   const router = useRouter();
-  const { userMode, setUserMode, currentTheme } = useStore();
+  const { userMode, setUserMode, currentTheme, isPlaying } = useStore();
 
   const toggleMode = () => {
     setUserMode(userMode === 'teacher' ? 'student' : 'teacher');
@@ -23,9 +23,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     router.push(router.pathname, router.asPath, { locale: newLocale });
   };
 
+  // Hide header navigation when playing on mobile
+  const shouldHideHeader = isPlaying && router.pathname === '/play';
+
   return (
-    <div className={cn('min-h-screen', `theme-${currentTheme}`)}>
-      <nav className="no-print bg-white/90 backdrop-blur-sm shadow-lg sticky top-0 z-50">
+    <div className={cn('min-h-screen flex flex-col', `theme-${currentTheme}`)}>
+      {!shouldHideHeader && (
+        <nav className="no-print bg-white/90 backdrop-blur-sm shadow-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center space-x-8">
@@ -96,12 +100,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </div>
       </nav>
-      <main className="flex-grow">{children}</main>
-      <footer className="no-print bg-gray-800 text-white py-8 mt-16">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <p>{t('home.footer')}</p>
-        </div>
-      </footer>
+      )}
+      <main className="flex-grow flex flex-col">{children}</main>
+      {!shouldHideHeader && (
+        <footer className="no-print bg-gray-800 text-white py-6 mt-auto">
+          <div className="max-w-7xl mx-auto px-4 text-center">
+            <p className="text-sm">{t('home.footer')}</p>
+          </div>
+        </footer>
+      )}
     </div>
   );
 };

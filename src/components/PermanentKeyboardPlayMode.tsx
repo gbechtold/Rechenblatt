@@ -49,9 +49,13 @@ export const PermanentKeyboardPlayMode: React.FC<PermanentKeyboardPlayModeProps>
   const [showRecommendations, setShowRecommendations] = useState(false);
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [viewportHeight, setViewportHeight] = useState(0);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [showCombo, setShowCombo] = useState(false);
   const startTimeRef = useRef(Date.now());
   const containerRef = useRef<HTMLDivElement>(null);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
+  const comboTimeoutRef = useRef<NodeJS.Timeout>();
   
   const {
     features,
@@ -67,7 +71,8 @@ export const PermanentKeyboardPlayMode: React.FC<PermanentKeyboardPlayModeProps>
 
   // Lock viewport height on mount
   useEffect(() => {
-    const height = window.innerHeight;
+    // Use visualViewport if available for more accurate height
+    const height = window.visualViewport?.height || window.innerHeight;
     setViewportHeight(height);
     
     // Keep hidden input focused to maintain keyboard
@@ -75,15 +80,39 @@ export const PermanentKeyboardPlayMode: React.FC<PermanentKeyboardPlayModeProps>
       hiddenInputRef.current.focus();
     }
     
-    // Prevent viewport resize
-    const preventResize = (e: Event) => {
-      e.preventDefault();
+    // Prevent body scrolling
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    document.body.style.height = '100%';
+    
+    // Update viewport meta tag to prevent zooming
+    let metaViewport = document.querySelector('meta[name="viewport"]');
+    const originalContent = metaViewport?.getAttribute('content') || '';
+    if (metaViewport) {
+      metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+    }
+    
+    // Listen for visual viewport changes
+    const handleViewportChange = () => {
+      if (window.visualViewport) {
+        setViewportHeight(window.visualViewport.height);
+      }
     };
     
-    window.addEventListener('resize', preventResize, { passive: false });
+    window.visualViewport?.addEventListener('resize', handleViewportChange);
     
     return () => {
-      window.removeEventListener('resize', preventResize);
+      window.visualViewport?.removeEventListener('resize', handleViewportChange);
+      // Restore body styles
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+      // Restore viewport meta tag
+      if (metaViewport) {
+        metaViewport.setAttribute('content', originalContent);
+      }
     };
   }, []);
 
@@ -117,6 +146,29 @@ export const PermanentKeyboardPlayMode: React.FC<PermanentKeyboardPlayModeProps>
     }
   }, [features.perfectStreak]);
 
+  // Show combo display temporarily
+  useEffect(() => {
+    if (features.combo >= 3) {
+      setShowCombo(true);
+      // Clear existing timeout
+      if (comboTimeoutRef.current) {
+        clearTimeout(comboTimeoutRef.current);
+      }
+      // Hide after 3 seconds
+      comboTimeoutRef.current = setTimeout(() => {
+        setShowCombo(false);
+      }, 3000);
+    } else {
+      setShowCombo(false);
+    }
+    
+    return () => {
+      if (comboTimeoutRef.current) {
+        clearTimeout(comboTimeoutRef.current);
+      }
+    };
+  }, [features.combo]);
+
   const handleAnswer = (answer: number, isCorrect: boolean) => {
     startTimeRef.current = Date.now();
     const isSpeed = checkSpeedBonus();
@@ -131,21 +183,32 @@ export const PermanentKeyboardPlayMode: React.FC<PermanentKeyboardPlayModeProps>
       updateScore(totalPoints);
       onProblemAnswer(currentProblem.id, answer, isCorrect);
       
-      // Celebrations based on combo
+      // Celebrations based on combo - confined to margins
       if (features.combo >= 3) {
+        // Left side confetti
         confetti({
-          particleCount: features.combo * 10,
-          spread: 70,
-          origin: { y: 0.3 }
+          particleCount: Math.min(features.combo * 3, 15),
+          spread: 30,
+          origin: { x: 0.1, y: 0.3 },
+          gravity: 1.5,
+          angle: 45
+        });
+        // Right side confetti
+        confetti({
+          particleCount: Math.min(features.combo * 3, 15),
+          spread: 30,
+          origin: { x: 0.9, y: 0.3 },
+          gravity: 1.5,
+          angle: 135
         });
       }
       
-      // Move to next problem after a short delay
+      // Move to next problem after a longer delay to reduce shakiness
       setTimeout(() => {
         setCurrentProblemIndex(prev => prev + 1);
         setIsGoldenProblem(false);
         setShowBossMode(false);
-      }, 1000);
+      }, 1500);
     } else {
       onProblemAnswer(currentProblem.id, answer, isCorrect);
     }
@@ -204,14 +267,49 @@ export const PermanentKeyboardPlayMode: React.FC<PermanentKeyboardPlayModeProps>
     onStartNewGame(mode.settings, problems);
   };
 
+  // Swipe handlers
+  const minSwipeDistance = 50;
+  
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    
+    if (isLeftSwipe) {
+      // Go back to previous problem or exit
+      if (currentProblemIndex > 0) {
+        setCurrentProblemIndex(prev => prev - 1);
+      } else {
+        setShowExitDialog(true);
+      }
+    }
+  };
+
   // Use locked viewport height
   const fixedHeight = viewportHeight || window.innerHeight;
 
   return (
     <div 
       className="fixed inset-0 bg-gray-50 overflow-hidden"
-      style={{ height: `${fixedHeight}px` }}
+      style={{ 
+        height: `${fixedHeight}px`,
+        maxHeight: `${fixedHeight}px`,
+        touchAction: 'pan-y'
+      }}
       ref={containerRef}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
     >
       {/* Hidden input to keep keyboard always visible */}
       <input
@@ -222,7 +320,7 @@ export const PermanentKeyboardPlayMode: React.FC<PermanentKeyboardPlayModeProps>
         aria-hidden="true"
       />
 
-      {/* Fixed Header with Navigation */}
+      {/* Fixed Header Zone with integrated combo display */}
       <div className="absolute top-0 left-0 right-0 bg-white shadow-sm z-50 px-4 py-2">
         <div className="flex items-center justify-between">
           <button onClick={handleExitAttempt} className="text-xl font-bold">
@@ -238,35 +336,56 @@ export const PermanentKeyboardPlayMode: React.FC<PermanentKeyboardPlayModeProps>
             </div>
             <button
               onClick={handleExitAttempt}
-              className="text-red-600 text-sm font-semibold"
+              className="text-gray-600 text-sm font-semibold"
             >
-              Beenden
+              Menü
             </button>
           </div>
         </div>
       </div>
 
-      {/* Game Features - Positioned absolutely */}
-      <div className="absolute top-12 right-2 z-40">
-        <ComboDisplay combo={features.combo} />
-      </div>
+      {/* Floating Combo Display - High z-index */}
+      <AnimatePresence>
+        {showCombo && features.combo >= 3 && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: -20 }}
+            transition={{ duration: 0.3, type: "spring" }}
+            className="absolute left-1/2 transform -translate-x-1/2"
+            style={{ 
+              top: '120px',
+              zIndex: 100 // Very high z-index to avoid collisions
+            }}
+          >
+            <div className="bg-gradient-to-r from-orange-400 to-red-500 text-white px-6 py-3 rounded-full shadow-2xl">
+              <div className="flex items-center space-x-2">
+                <span className="text-xl font-bold">Combo x{features.combo}</span>
+                <span className="text-2xl">
+                  {features.combo >= 10 ? '🔥🔥🔥' : features.combo >= 7 ? '🔥🔥' : '🔥'}
+                </span>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
-      {/* Main Content - Fixed position in center */}
-      <div className="absolute inset-0 flex items-center justify-center px-4" style={{ 
-        top: '60px',
-        bottom: '40%', // Leave space for keyboard
+      {/* Main Content Zone - Fixed position from top */}
+      <div className="absolute left-0 right-0 px-4" style={{ 
+        top: '80px', // Fixed distance from top
+        zIndex: 20 // Below header (50) and popups (30) but above background
       }}>
         <AnimatePresence mode="wait">
           {!isComplete ? (
             <motion.div
               key={currentProblemIndex}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="w-full max-w-sm"
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: -20 }}
+              transition={{ duration: 0.3, type: "spring", bounce: 0.3 }}
+              className="w-full max-w-sm mx-auto"
             >
-              <div className={`relative ${isGoldenProblem ? 'bg-gradient-to-r from-yellow-400 to-orange-400' : 'bg-white'} p-6 rounded-xl shadow-lg`}>
+              <div className={`relative ${isGoldenProblem ? 'bg-gradient-to-r from-yellow-400 to-orange-400' : 'bg-white'} p-6 rounded-xl shadow-lg`} style={{ minHeight: '240px' }}>
                 {isGoldenProblem && (
                   <motion.div
                     animate={{ rotate: 360 }}
@@ -309,13 +428,13 @@ export const PermanentKeyboardPlayMode: React.FC<PermanentKeyboardPlayModeProps>
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="w-full max-w-sm"
+              className="w-full max-w-sm mx-auto"
             >
               <div className="bg-white rounded-xl shadow-lg p-6">
                 <h2 className="text-3xl font-bold mb-3 text-green-600 text-center">
                   Fertig! 🎉
                 </h2>
-                <div className="text-center mb-4">
+                <div className="text-center mb-6">
                   <p className="text-xl font-bold">{score} Punkte</p>
                   {features.combo > 0 && (
                     <p className="text-sm text-gray-600">
@@ -324,45 +443,35 @@ export const PermanentKeyboardPlayMode: React.FC<PermanentKeyboardPlayModeProps>
                   )}
                 </div>
 
-                {!showRecommendations ? (
-                  <div className="space-y-2">
-                    <button
-                      onClick={() => setShowRecommendations(true)}
-                      className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold"
+                <div className="space-y-2 mb-4">
+                  {getRecommendedModes().map((mode, index) => (
+                    <motion.button
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      onClick={() => handleRecommendedMode(mode)}
+                      className={`w-full p-3 ${mode.color} text-white rounded-lg`}
                     >
-                      Weiterspielen
-                    </button>
-                    <button
-                      onClick={onExit}
-                      className="w-full px-4 py-3 bg-gray-200 text-gray-700 rounded-lg"
-                    >
-                      Hauptmenü
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {getRecommendedModes().map((mode, index) => (
-                      <motion.button
-                        key={index}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        onClick={() => handleRecommendedMode(mode)}
-                        className={`w-full p-3 ${mode.color} text-white rounded-lg`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-xl">{mode.icon}</span>
-                            <div className="text-left">
-                              <div className="font-semibold text-sm">{mode.title}</div>
-                              <div className="text-xs opacity-90">{mode.description}</div>
-                            </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xl">{mode.icon}</span>
+                          <div className="text-left">
+                            <div className="font-semibold text-sm">{mode.title}</div>
+                            <div className="text-xs opacity-90">{mode.description}</div>
                           </div>
                         </div>
-                      </motion.button>
-                    ))}
-                  </div>
-                )}
+                      </div>
+                    </motion.button>
+                  ))}
+                </div>
+                
+                <button
+                  onClick={onExit}
+                  className="text-gray-600 text-sm underline hover:text-gray-800 block text-center w-full"
+                >
+                  Beenden
+                </button>
               </div>
             </motion.div>
           )}
@@ -372,18 +481,36 @@ export const PermanentKeyboardPlayMode: React.FC<PermanentKeyboardPlayModeProps>
       {/* Exit Confirmation Dialog */}
       <ConfirmDialog
         isOpen={showExitDialog}
-        title="Spiel beenden?"
-        message={`Du hast ${currentProblemIndex} von ${worksheet.problems.length} Aufgaben gelöst. Möchtest du wirklich beenden?`}
-        confirmText="Beenden"
+        title="Zum Menü zurückkehren?"
+        message={`Du hast ${currentProblemIndex} von ${worksheet.problems.length} Aufgaben gelöst. Möchtest du wirklich zum Menü zurückkehren?`}
+        confirmText="Zum Menü"
         cancelText="Weiterspielen"
         onConfirm={onExit}
         onCancel={() => setShowExitDialog(false)}
       />
 
-      {/* Hidden features for discovery */}
-      <MathJoke show={showJoke} />
-      <MathFact show={showFact} />
-      <SpeedBonusIndicator show={features.speedBonus} />
+      {/* Bottom Zone for popups - fixed below main content */}
+      <div className="absolute left-0 right-0 px-4 pointer-events-none" style={{ 
+        top: '340px', // Fixed position below main content box
+        height: '80px',
+        zIndex: 30
+      }}>
+        {showJoke && (
+          <div className="bg-blue-100 rounded-lg p-3 shadow-lg pointer-events-auto">
+            <MathJoke show={true} />
+          </div>
+        )}
+        {showFact && !showJoke && (
+          <div className="bg-purple-100 rounded-lg p-3 shadow-lg pointer-events-auto">
+            <MathFact show={true} />
+          </div>
+        )}
+        {features.speedBonus && !showJoke && !showFact && (
+          <div className="flex justify-center">
+            <SpeedBonusIndicator show={true} />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

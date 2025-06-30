@@ -97,19 +97,18 @@ export const MathJoke: React.FC<{ show: boolean }> = ({ show }) => {
     }
   }, [show]);
 
+  if (!show) return null;
+
   return (
-    <AnimatePresence>
-      {show && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="absolute top-0 left-0 right-0 bg-yellow-100 p-3 text-center text-sm rounded-lg shadow-lg"
-        >
-          <p className="text-yellow-800">😄 {joke}</p>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.2 }}
+      className="text-center text-sm"
+    >
+      <p className="text-yellow-800">😄 {joke}</p>
+    </motion.div>
   );
 };
 
@@ -122,20 +121,19 @@ export const MathFact: React.FC<{ show: boolean }> = ({ show }) => {
     }
   }, [show]);
 
+  if (!show) return null;
+
   return (
-    <AnimatePresence>
-      {show && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-          className="fixed bottom-20 left-4 right-4 bg-blue-500 text-white p-4 rounded-lg shadow-xl"
-        >
-          <p className="text-sm font-semibold">💡 Fun Fact!</p>
-          <p className="text-xs mt-1">{fact}</p>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      transition={{ duration: 0.2 }}
+      className="text-center"
+    >
+      <p className="text-sm font-semibold text-purple-800">💡 Fun Fact!</p>
+      <p className="text-xs mt-1 text-purple-700">{fact}</p>
+    </motion.div>
   );
 };
 
@@ -165,19 +163,18 @@ export const ComboDisplay: React.FC<{ combo: number }> = ({ combo }) => {
 };
 
 export const SpeedBonusIndicator: React.FC<{ show: boolean }> = ({ show }) => {
+  if (!show) return null;
+
   return (
-    <AnimatePresence>
-      {show && (
-        <motion.div
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0, opacity: 0 }}
-          className="fixed top-32 right-4 bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full shadow-lg"
-        >
-          <span className="font-bold text-sm">⚡ Speed Bonus!</span>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <motion.div
+      initial={{ scale: 0, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ scale: 0, opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full shadow-lg inline-block"
+    >
+      <span className="font-bold text-sm">⚡ Speed Bonus!</span>
+    </motion.div>
   );
 };
 

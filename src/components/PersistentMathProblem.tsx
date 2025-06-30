@@ -4,6 +4,7 @@ import { getOperationSymbol } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'next-i18next';
+import confetti from 'canvas-confetti';
 
 interface PersistentMathProblemProps {
   problem: Problem;
@@ -14,7 +15,21 @@ interface PersistentMathProblemProps {
   index?: number;
   className?: string;
   keepKeyboardVisible?: boolean;
+  streak?: number;
 }
+
+const motivationalMessages = [
+  "Great job! 🌟",
+  "Amazing! 🎉",
+  "You're on fire! 🔥",
+  "Brilliant! 💫",
+  "Fantastic! 🏆",
+  "Keep it up! 💪",
+  "Excellent! ⭐",
+  "Wonderful! 🌈",
+  "Super! 🚀",
+  "Awesome! 🎯"
+];
 
 export const PersistentMathProblem: React.FC<PersistentMathProblemProps> = ({
   problem,
@@ -25,6 +40,7 @@ export const PersistentMathProblem: React.FC<PersistentMathProblemProps> = ({
   index = 0,
   className,
   keepKeyboardVisible = true,
+  streak = 0,
 }) => {
   const { t } = useTranslation('common');
   const [userAnswer, setUserAnswer] = useState<string>('');
@@ -33,6 +49,7 @@ export const PersistentMathProblem: React.FC<PersistentMathProblemProps> = ({
   const [attempts, setAttempts] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
+  const [motivationalMessage, setMotivationalMessage] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
   const submitTimeoutRef = useRef<NodeJS.Timeout>();
@@ -87,16 +104,51 @@ export const PersistentMathProblem: React.FC<PersistentMathProblemProps> = ({
     
     if (onAnswer && correct) {
       onAnswer(answer, correct);
+      
+      // Set motivational message
+      setMotivationalMessage(motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)]);
+      
+      // Celebrate with confetti!
+      confetti({
+        particleCount: 30,
+        spread: 60,
+        origin: { y: 0.7 },
+        colors: ['#10b981', '#34d399', '#6ee7b7']
+      });
+      
+      // Extra celebration for streaks
+      if (streak && streak >= 5) {
+        setTimeout(() => {
+          confetti({
+            particleCount: 50,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 },
+            colors: ['#fbbf24', '#f59e0b', '#f97316']
+          });
+        }, 250);
+        setTimeout(() => {
+          confetti({
+            particleCount: 50,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 },
+            colors: ['#fbbf24', '#f59e0b', '#f97316']
+          });
+        }, 400);
+      }
+      
       // Clear answer after correct submission
       setTimeout(() => {
         setUserAnswer('');
         setShowFeedback(false);
         setIsSubmitting(false);
+        setMotivationalMessage('');
         // Keep focus on hidden input to maintain keyboard
         if (keepKeyboardVisible && hiddenInputRef.current) {
           hiddenInputRef.current.focus();
         }
-      }, 800);
+      }, 1200);
     } else {
       setIsSubmitting(false);
     }
@@ -164,25 +216,6 @@ export const PersistentMathProblem: React.FC<PersistentMathProblemProps> = ({
               enterKeyHint="done"
               placeholder=""
             />
-            {keepKeyboardVisible && userAnswer && !showFeedback && (
-              <button
-                onClick={handleSubmit}
-                className="w-12 h-12 bg-green-500 text-white rounded-lg font-bold text-lg hover:bg-green-600 active:bg-green-700 relative"
-              >
-                {showTimer ? (
-                  <motion.div
-                    initial={{ scale: 1 }}
-                    animate={{ scale: 0.8 }}
-                    transition={{ duration: 3, ease: "linear" }}
-                    className="absolute inset-0 flex items-center justify-center"
-                  >
-                    <div className="text-xs">3s</div>
-                  </motion.div>
-                ) : (
-                  '✓'
-                )}
-              </button>
-            )}
             {/* Hidden input to keep keyboard visible during transitions */}
             {keepKeyboardVisible && showFeedback && isCorrect && (
               <input
@@ -206,7 +239,12 @@ export const PersistentMathProblem: React.FC<PersistentMathProblemProps> = ({
     visible: {
       opacity: 1,
       y: 0,
-      transition: { delay: index * 0.1 },
+      transition: { 
+        delay: index * 0.1,
+        duration: 0.3,
+        type: "spring",
+        bounce: 0.3
+      },
     },
   };
 
@@ -236,6 +274,28 @@ export const PersistentMathProblem: React.FC<PersistentMathProblemProps> = ({
             </div>
           </div>
         </div>
+        {/* Submit button below the problem */}
+        {isInteractive && keepKeyboardVisible && userAnswer && !showFeedback && (
+          <div className="mt-4 flex justify-center">
+            <button
+              onClick={handleSubmit}
+              className="px-6 py-3 bg-green-500 text-white rounded-lg font-bold text-lg hover:bg-green-600 active:bg-green-700 relative min-w-[120px]"
+            >
+              {showTimer ? (
+                <motion.div
+                  initial={{ scale: 1 }}
+                  animate={{ scale: 0.8 }}
+                  transition={{ duration: 3, ease: "linear" }}
+                  className="flex items-center justify-center"
+                >
+                  <span className="text-sm">3s</span>
+                </motion.div>
+              ) : (
+                'Prüfen ✓'
+              )}
+            </button>
+          </div>
+        )}
         {isInteractive && !showFeedback && userAnswer && !keepKeyboardVisible && (
           <button
             onClick={handleSubmit}
@@ -246,16 +306,29 @@ export const PersistentMathProblem: React.FC<PersistentMathProblemProps> = ({
         )}
         {showFeedback && (
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.3 }}
             className={cn(
               'px-6 py-4 rounded-lg shadow-lg',
               isCorrect ? 'bg-green-500 text-white' : 'bg-yellow-100 text-gray-800'
             )}
           >
             {isCorrect ? (
-              <div className="text-center font-bold text-lg">
-                ✓ {t('game.correct')}
+              <div className="text-center">
+                <div className="font-bold text-xl mb-1">
+                  {motivationalMessage || `✓ ${t('game.correct')}`}
+                </div>
+                {streak && streak >= 3 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-sm mt-2"
+                  >
+                    {streak} in a row! 🔥
+                  </motion.div>
+                )}
               </div>
             ) : (
               <div className="space-y-2">
