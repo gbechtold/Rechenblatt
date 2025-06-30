@@ -31,8 +31,10 @@ export const PersistentMathProblem: React.FC<PersistentMathProblemProps> = ({
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [attempts, setAttempts] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
+  const submitTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Keep focus on input to maintain keyboard visibility
   useEffect(() => {
@@ -50,15 +52,32 @@ export const PersistentMathProblem: React.FC<PersistentMathProblemProps> = ({
     setUserAnswer('');
     setShowFeedback(false);
     setIsCorrect(false);
+    setIsSubmitting(false);
+    // Clear any pending submit timeout
+    if (submitTimeoutRef.current) {
+      clearTimeout(submitTimeoutRef.current);
+    }
     if (isInteractive && keepKeyboardVisible && inputRef.current) {
       inputRef.current.focus();
     }
   }, [problem.id]);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (submitTimeoutRef.current) {
+        clearTimeout(submitTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleSubmit = () => {
+    if (isSubmitting || showFeedback) return;
+    
     const answer = parseInt(userAnswer);
     if (isNaN(answer)) return;
 
+    setIsSubmitting(true);
     const correct = checkAnswer(answer);
     setIsCorrect(correct);
     setShowFeedback(true);
@@ -70,11 +89,14 @@ export const PersistentMathProblem: React.FC<PersistentMathProblemProps> = ({
       setTimeout(() => {
         setUserAnswer('');
         setShowFeedback(false);
+        setIsSubmitting(false);
         // Keep focus on hidden input to maintain keyboard
         if (keepKeyboardVisible && hiddenInputRef.current) {
           hiddenInputRef.current.focus();
         }
       }, 800);
+    } else {
+      setIsSubmitting(false);
     }
   };
 
@@ -113,12 +135,26 @@ export const PersistentMathProblem: React.FC<PersistentMathProblemProps> = ({
               inputMode="numeric"
               pattern="[0-9]*"
               value={userAnswer}
-              onChange={(e) => setUserAnswer(e.target.value)}
+              onChange={(e) => {
+                setUserAnswer(e.target.value);
+                // Clear any existing timeout
+                if (submitTimeoutRef.current) {
+                  clearTimeout(submitTimeoutRef.current);
+                }
+                // Auto-submit on mobile when answer looks complete
+                if (keepKeyboardVisible && e.target.value.length >= 1 && !showFeedback) {
+                  const answer = parseInt(e.target.value);
+                  if (!isNaN(answer) && answer > 0) {
+                    submitTimeoutRef.current = setTimeout(() => handleSubmit(), 700);
+                  }
+                }
+              }}
               onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
-              className="w-16 h-16 text-xl text-center border-2 border-gray-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-16 h-16 text-2xl font-bold text-center border-2 border-blue-400 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500 bg-blue-50"
               disabled={showFeedback && isCorrect}
               autoComplete="off"
               enterKeyHint="done"
+              placeholder=""
             />
             {/* Hidden input to keep keyboard visible during transitions */}
             {keepKeyboardVisible && showFeedback && isCorrect && (
@@ -133,9 +169,9 @@ export const PersistentMathProblem: React.FC<PersistentMathProblemProps> = ({
           </>
         );
       }
-      return <div className="w-16 h-16 text-xl font-semibold border-b-2 border-gray-400 flex items-center justify-center print:w-12 print:h-10 print:text-base"></div>;
+      return <div className="w-16 h-16 text-2xl font-bold flex items-center justify-center print:w-12 print:h-10 print:text-base"></div>;
     }
-    return <div className="w-16 h-16 text-xl font-semibold border-b-2 border-gray-400 flex items-center justify-center print:w-12 print:h-10 print:text-base">{value}</div>;
+    return <div className="w-16 h-16 text-2xl font-bold flex items-center justify-center print:w-12 print:h-10 print:text-base">{value}</div>;
   };
 
   const problemVariants = {
@@ -171,7 +207,7 @@ export const PersistentMathProblem: React.FC<PersistentMathProblemProps> = ({
             {renderOperand(problem.answer, problem.placeholder === 'answer' || !problem.placeholder)}
           </div>
         </div>
-        {isInteractive && !showFeedback && userAnswer && (
+        {isInteractive && !showFeedback && userAnswer && !keepKeyboardVisible && (
           <button
             onClick={handleSubmit}
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-lg font-semibold"

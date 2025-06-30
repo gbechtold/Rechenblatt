@@ -6,6 +6,7 @@ import { useStore } from '@/lib/store';
 import { WorksheetView } from '@/components/WorksheetView';
 import { PlaySettings } from '@/components/PlaySettings';
 import { ImprovedMultiStepPlayMode } from '@/components/ImprovedMultiStepPlayMode';
+import { MobileOptimizedPlayMode } from '@/components/MobileOptimizedPlayMode';
 import { QuickStart } from '@/components/QuickStart';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
@@ -16,6 +17,17 @@ export default function Play() {
   const { worksheets, currentWorksheet, setCurrentWorksheet, isPlaying, startGame, endGame, score, updateScore } = useStore();
   const [problemsCompleted, setProblemsCompleted] = useState(0);
   const [showCompletion, setShowCompletion] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleProblemAnswer = (problemId: string, answer: number, isCorrect: boolean) => {
     if (isCorrect) {
@@ -125,7 +137,16 @@ export default function Play() {
     );
   }
 
-  return (
+  return isMobile ? (
+    <MobileOptimizedPlayMode
+      worksheet={currentWorksheet}
+      onProblemAnswer={handleProblemAnswer}
+      problemsCompleted={problemsCompleted}
+      score={score}
+      onExit={endGame}
+      onStartNewGame={startCustomGame}
+    />
+  ) : (
     <ImprovedMultiStepPlayMode
       worksheet={currentWorksheet}
       onProblemAnswer={handleProblemAnswer}
