@@ -144,6 +144,7 @@
     "selected": "selected"
   },
   "play": {
+    "quickStart": "Quick Start",
     "settings": {
       "title": "Custom Game Settings",
       "difficulty": "Difficulty",

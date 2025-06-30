@@ -34,7 +34,9 @@
       "Bash(pkill:*)",
       "Bash(ls:*)",
       "Bash(flyctl status:*)",
-      "Bash(flyctl deploy:*)"
+      "Bash(flyctl deploy:*)",
+      "Bash(vercel:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }

@@ -5,7 +5,8 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useStore } from '@/lib/store';
 import { WorksheetView } from '@/components/WorksheetView';
 import { PlaySettings } from '@/components/PlaySettings';
-import { MultiStepPlayMode } from '@/components/MultiStepPlayMode';
+import { ImprovedMultiStepPlayMode } from '@/components/ImprovedMultiStepPlayMode';
+import { QuickStart } from '@/components/QuickStart';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { Worksheet, WorksheetSettings, Problem } from '@/types';
@@ -75,6 +76,9 @@ export default function Play() {
         <div className="max-w-7xl mx-auto px-4">
           <h1 className="text-4xl font-bold text-center mb-8">{t('nav.play')}</h1>
           
+          {/* Quick Start Grid */}
+          <QuickStart onStartGame={startCustomGame} />
+          
           {/* Custom Game Settings */}
           <PlaySettings onStartGame={startCustomGame} />
           
@@ -122,12 +126,13 @@ export default function Play() {
   }
 
   return (
-    <MultiStepPlayMode
+    <ImprovedMultiStepPlayMode
       worksheet={currentWorksheet}
       onProblemAnswer={handleProblemAnswer}
       problemsCompleted={problemsCompleted}
       score={score}
       onExit={endGame}
+      onStartNewGame={startCustomGame}
     />
   );
 }

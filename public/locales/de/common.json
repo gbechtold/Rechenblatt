@@ -143,6 +143,7 @@
     "selected": "ausgewählt"
   },
   "play": {
+    "quickStart": "Schnellstart",
     "settings": {
       "title": "Spieleinstellungen",
       "difficulty": "Schwierigkeit",
