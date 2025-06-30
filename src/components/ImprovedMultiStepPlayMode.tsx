@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Worksheet, Problem, WorksheetSettings } from '@/types';
-import { MathProblem } from './MathProblem';
+import { PersistentMathProblem } from './PersistentMathProblem';
 import { useTranslation } from 'next-i18next';
 import confetti from 'canvas-confetti';
 import { generateWorksheetProblems } from '@/lib/problemGenerator';
@@ -172,9 +172,9 @@ export const ImprovedMultiStepPlayMode: React.FC<ImprovedMultiStepPlayModeProps>
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-gray-50">
+    <div className="fixed inset-0 flex flex-col bg-gray-50 overflow-hidden">
       {/* Fixed Header - No animation to prevent sliding */}
-      <div className="bg-white shadow-md z-50 px-4 py-3">
+      <div className="bg-white shadow-md z-50 px-4 py-3 flex-shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="bg-blue-100 px-3 py-1 rounded-full">
@@ -207,18 +207,19 @@ export const ImprovedMultiStepPlayMode: React.FC<ImprovedMultiStepPlayModeProps>
         onFound={() => addAchievement('Hidden Treasure!')}
       />
 
-      {/* Main Content - Fixed positioning */}
-      <div className="flex-1 flex items-center justify-center px-4 overflow-hidden">
-        <AnimatePresence mode="wait">
-          {!isComplete ? (
-            <motion.div
-              key={currentProblemIndex}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.2 }}
-              className="w-full max-w-md"
-            >
+      {/* Main Content - Fixed positioning with safe area for keyboard */}
+      <div className="flex-1 flex items-center justify-center px-4 pb-safe overflow-hidden">
+        <div className="w-full max-w-md">
+          <AnimatePresence mode="wait">
+            {!isComplete ? (
+              <motion.div
+                key={currentProblemIndex}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="w-full"
+              >
               <div className={`relative ${isGoldenProblem ? 'bg-gradient-to-r from-yellow-400 to-orange-400' : `theme-${worksheet.settings.theme}`} p-6 rounded-2xl shadow-xl`}>
                 {isGoldenProblem && (
                   <motion.div
@@ -256,13 +257,14 @@ export const ImprovedMultiStepPlayMode: React.FC<ImprovedMultiStepPlayModeProps>
                 
                 <div className="flex justify-center">
                   <div className="transform scale-110">
-                    <MathProblem
+                    <PersistentMathProblem
                       problem={currentProblem}
                       showSolution={false}
                       isInteractive={true}
                       onAnswer={handleAnswer}
                       theme={worksheet.settings.theme}
                       index={0}
+                      keepKeyboardVisible={true}
                     />
                   </div>
                 </div>
@@ -328,7 +330,8 @@ export const ImprovedMultiStepPlayMode: React.FC<ImprovedMultiStepPlayModeProps>
               </div>
             </motion.div>
           )}
-        </AnimatePresence>
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );
