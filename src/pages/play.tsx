@@ -7,6 +7,7 @@ import { WorksheetView } from '@/components/WorksheetView';
 import { PlaySettings } from '@/components/PlaySettings';
 import { ImprovedMultiStepPlayMode } from '@/components/ImprovedMultiStepPlayMode';
 import { MobileOptimizedPlayMode } from '@/components/MobileOptimizedPlayMode';
+import { PermanentKeyboardPlayMode } from '@/components/PermanentKeyboardPlayMode';
 import { QuickStart } from '@/components/QuickStart';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
@@ -138,7 +139,7 @@ export default function Play() {
   }
 
   return isMobile ? (
-    <MobileOptimizedPlayMode
+    <PermanentKeyboardPlayMode
       worksheet={currentWorksheet}
       onProblemAnswer={handleProblemAnswer}
       problemsCompleted={problemsCompleted}
