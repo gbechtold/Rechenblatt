@@ -5,6 +5,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useStore } from '@/lib/store';
 import { WorksheetView } from '@/components/WorksheetView';
 import { PlaySettings } from '@/components/PlaySettings';
+import { MultiStepPlayMode } from '@/components/MultiStepPlayMode';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { Worksheet, WorksheetSettings, Problem } from '@/types';
@@ -19,13 +20,6 @@ export default function Play() {
     if (isCorrect) {
       updateScore(10);
       setProblemsCompleted(prev => prev + 1);
-      
-      // Small celebration
-      confetti({
-        particleCount: 30,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
     }
   };
 
@@ -128,62 +122,13 @@ export default function Play() {
   }
 
   return (
-    <div className="min-h-screen py-8">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="mb-6 bg-white p-4 rounded-lg shadow flex items-center justify-between">
-          <div className="flex items-center space-x-6">
-            <div>
-              <span className="text-gray-600">Score:</span>
-              <span className="ml-2 text-2xl font-bold text-blue-600">{score}</span>
-            </div>
-            <div>
-              <span className="text-gray-600">Progress:</span>
-              <span className="ml-2 text-lg font-semibold">
-                {problemsCompleted} / {currentWorksheet.problems.length}
-              </span>
-            </div>
-          </div>
-          <button
-            onClick={endGame}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-          >
-            Exit Game
-          </button>
-        </div>
-
-        <AnimatePresence>
-          {showCompletion ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              className="text-center py-20"
-            >
-              <h2 className="text-5xl font-bold mb-4 text-green-600">
-                {t('game.complete')}
-              </h2>
-              <p className="text-2xl mb-8">
-                Final Score: {score} {t('game.points')}
-              </p>
-              <button
-                onClick={endGame}
-                className="px-8 py-4 bg-blue-600 text-white rounded-lg text-lg hover:bg-blue-700"
-              >
-                Back to Worksheets
-              </button>
-            </motion.div>
-          ) : (
-            <div className={`theme-${currentWorksheet.settings.theme} p-8 rounded-lg`}>
-              <WorksheetView
-                worksheet={currentWorksheet}
-                isInteractive={true}
-                onProblemAnswer={handleProblemAnswer}
-              />
-            </div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
+    <MultiStepPlayMode
+      worksheet={currentWorksheet}
+      onProblemAnswer={handleProblemAnswer}
+      problemsCompleted={problemsCompleted}
+      score={score}
+      onExit={endGame}
+    />
   );
 }
 
