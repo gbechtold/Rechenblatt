@@ -32,6 +32,7 @@ export const PersistentMathProblem: React.FC<PersistentMathProblemProps> = ({
   const [isCorrect, setIsCorrect] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showTimer, setShowTimer] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
   const submitTimeoutRef = useRef<NodeJS.Timeout>();
@@ -53,6 +54,7 @@ export const PersistentMathProblem: React.FC<PersistentMathProblemProps> = ({
     setShowFeedback(false);
     setIsCorrect(false);
     setIsSubmitting(false);
+    setShowTimer(false);
     // Clear any pending submit timeout
     if (submitTimeoutRef.current) {
       clearTimeout(submitTimeoutRef.current);
@@ -128,7 +130,7 @@ export const PersistentMathProblem: React.FC<PersistentMathProblemProps> = ({
     if (isPlaceholder && !showSolution) {
       if (isInteractive) {
         return (
-          <>
+          <div className="flex items-center space-x-1">
             <input
               ref={inputRef}
               type="number"
@@ -141,12 +143,18 @@ export const PersistentMathProblem: React.FC<PersistentMathProblemProps> = ({
                 if (submitTimeoutRef.current) {
                   clearTimeout(submitTimeoutRef.current);
                 }
-                // Auto-submit on mobile when answer looks complete
+                // Auto-submit after 3 seconds on mobile
                 if (keepKeyboardVisible && e.target.value.length >= 1 && !showFeedback) {
                   const answer = parseInt(e.target.value);
-                  if (!isNaN(answer) && answer > 0) {
-                    submitTimeoutRef.current = setTimeout(() => handleSubmit(), 700);
+                  if (!isNaN(answer)) {
+                    setShowTimer(true);
+                    submitTimeoutRef.current = setTimeout(() => {
+                      handleSubmit();
+                      setShowTimer(false);
+                    }, 3000);
                   }
+                } else {
+                  setShowTimer(false);
                 }
               }}
               onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
@@ -156,6 +164,25 @@ export const PersistentMathProblem: React.FC<PersistentMathProblemProps> = ({
               enterKeyHint="done"
               placeholder=""
             />
+            {keepKeyboardVisible && userAnswer && !showFeedback && (
+              <button
+                onClick={handleSubmit}
+                className="w-12 h-12 bg-green-500 text-white rounded-lg font-bold text-lg hover:bg-green-600 active:bg-green-700 relative"
+              >
+                {showTimer ? (
+                  <motion.div
+                    initial={{ scale: 1 }}
+                    animate={{ scale: 0.8 }}
+                    transition={{ duration: 3, ease: "linear" }}
+                    className="absolute inset-0 flex items-center justify-center"
+                  >
+                    <div className="text-xs">3s</div>
+                  </motion.div>
+                ) : (
+                  '✓'
+                )}
+              </button>
+            )}
             {/* Hidden input to keep keyboard visible during transitions */}
             {keepKeyboardVisible && showFeedback && isCorrect && (
               <input
@@ -166,7 +193,7 @@ export const PersistentMathProblem: React.FC<PersistentMathProblemProps> = ({
                 autoFocus
               />
             )}
-          </>
+          </div>
         );
       }
       return <div className="w-16 h-16 text-2xl font-bold flex items-center justify-center print:w-12 print:h-10 print:text-base"></div>;
@@ -204,7 +231,9 @@ export const PersistentMathProblem: React.FC<PersistentMathProblemProps> = ({
             </span>
             {renderOperand(problem.operand2, problem.placeholder === 'operand2')}
             <span className="text-2xl font-bold print:text-xl print:px-1">=</span>
-            {renderOperand(problem.answer, problem.placeholder === 'answer' || !problem.placeholder)}
+            <div className="flex items-center">
+              {renderOperand(problem.answer, problem.placeholder === 'answer' || !problem.placeholder)}
+            </div>
           </div>
         </div>
         {isInteractive && !showFeedback && userAnswer && !keepKeyboardVisible && (
