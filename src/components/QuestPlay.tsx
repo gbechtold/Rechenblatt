@@ -11,6 +11,7 @@ import { MobileQuestProgress } from './MobileQuestProgress';
 import { BossBattle } from './BossBattle';
 import { PersistentMathProblem } from './PersistentMathProblem';
 import { QuestCompletionScreen } from './QuestCompletionScreen';
+import { ThemeSpecificGameplay } from './ThemeSpecificGameplay';
 import { useTranslation } from 'next-i18next';
 import confetti from 'canvas-confetti';
 import { generateWorksheetProblems } from '@/lib/problemGenerator';
@@ -57,6 +58,21 @@ export const QuestPlay: React.FC<QuestPlayProps> = ({
     setQuest(newQuest);
     progressManager.startQuest(newQuest);
   }, [theme]);
+
+  // Check if current node needs automatic completion (like reward nodes)
+  useEffect(() => {
+    if (quest && !showTransition) {
+      const currentNode = quest.path[currentNodeIndex];
+      
+      // Auto-advance to reward nodes
+      if (currentNode?.type === 'reward') {
+        setTimeout(() => {
+          // No problems to complete, show reward screen immediately
+          checkNodeCompletion();
+        }, 500);
+      }
+    }
+  }, [currentNodeIndex, quest, showTransition]);
 
   const generateMathProblem = (): Problem => {
     const settings: WorksheetSettings = {
@@ -106,7 +122,8 @@ export const QuestPlay: React.FC<QuestPlayProps> = ({
     const currentNode = quest.path[currentNodeIndex];
     const requiredProblems = currentNode.problems || 0;
     
-    if (nodeProgress + 1 >= requiredProblems) {
+    // For reward nodes or other nodes without problems, complete immediately
+    if (requiredProblems === 0 || nodeProgress + 1 >= requiredProblems) {
       // Node completed
       progressManager.updateQuestProgress(theme, true, 0, 0);
       
@@ -300,40 +317,24 @@ export const QuestPlay: React.FC<QuestPlayProps> = ({
                 <h2 className="text-xl font-bold text-white mb-1">
                   {currentNode.name?.[lang] || 'Challenge'}
                 </h2>
-                <div className="flex items-center justify-center space-x-4">
-                  <p className="text-sm text-white/80">
-                    {t('quest.progress', 'Problem {{current}} of {{total}}', {
-                      current: nodeProgress + 1,
-                      total: currentNode.problems || 1
-                    })}
-                  </p>
-                  {/* Progress dots */}
-                  <div className="flex space-x-1">
-                    {Array.from({ length: currentNode.problems || 1 }, (_, i) => (
-                      <div
-                        key={i}
-                        className={`w-2 h-2 rounded-full ${
-                          i < nodeProgress
-                            ? 'bg-green-400'
-                            : i === nodeProgress
-                            ? 'bg-white animate-pulse'
-                            : 'bg-white/30'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
+                <p className="text-sm text-white/80">
+                  {t('quest.progress', 'Problem {{current}} of {{total}}', {
+                    current: nodeProgress + 1,
+                    total: currentNode.problems || 1
+                  })}
+                </p>
               </div>
 
-              {/* Math Problem Card - Always at top */}
+              {/* Themed Gameplay Card - Always at top */}
               <div className="bg-white/90 backdrop-blur rounded-2xl p-4 shadow-2xl">
-                <PersistentMathProblem
+                <ThemeSpecificGameplay
+                  theme={theme}
+                  challenge={currentNode.challenge}
                   problem={generateMathProblem()}
-                  showSolution={false}
-                  isInteractive={true}
                   onAnswer={handleProblemAnswer}
-                  theme={themeData.colors.primary}
-                  keepKeyboardVisible={true}
+                  themeColors={themeData.colors}
+                  nodeProgress={nodeProgress}
+                  totalProblems={currentNode.problems || 1}
                 />
               </div>
             </div>
